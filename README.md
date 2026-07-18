@@ -414,16 +414,25 @@ Standalone inference for trained checkpoints (multiple dataset variants).
    export WANDB_API_KEY=<your_key>
    ```
 
-4. **Launch training** (single node, multi-GPU via torchrun or accelerate):
+4. **Launch training.** The scripts do not initialise `torch.distributed` (no `init_process_group`, no `DistributedSampler`, no per-rank device placement — `DEVICE` in [`utils/config.py`](utils/config.py) is just `"cuda"` if available). This means there is currently no real multi-process data-parallel path: use a single `python` invocation on one GPU.
+
    ```bash
-   torchrun --nproc_per_node=4 \
-     more_training_voxtral_scripts/training_voxtral_generation_tokens05_no_margin.py
+   python more_training_voxtral_scripts/training_voxtral_generation_tokens05_no_margin.py
    ```
-   Or with a SLURM job script pointing to the same entry point. Equivalently, via the unified entry point:
+
+   Or via the unified entry point:
+
    ```bash
-   torchrun --nproc_per_node=4 \
-     scripts/train.py --config configs/hyperparameters_05_no_margin.yaml
+   python scripts/train.py --config configs/hyperparameters_05_no_margin.yaml
    ```
+
+   To pin the run to a specific GPU on a multi-GPU machine, set `CUDA_VISIBLE_DEVICES` before launching:
+
+   ```bash
+   CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/hyperparameters_05_no_margin.yaml
+   ```
+
+   `torchrun --nproc_per_node=N ...` will *run*, but without the distributed setup above it just starts `N` independent, non-coordinated copies of the same script contending for the same GPU and writing to the same `save_path` — not real distributed training. Treat `torchrun`/`accelerate launch` as future multi-GPU hooks rather than something to use as-is today.
 
 5. **Checkpoints are saved to** `<save_path>/<project_name>/` (defined in the YAML). The best checkpoint (lowest EER on the dev set) is retained as `checkpoint_best_dev.pt`. A separate `checkpoint_best_eval.pt` tracks the lowest EER on the eval (test) set independently.
 
@@ -515,169 +524,6 @@ See [`requirements.txt`](requirements.txt) (`pip install -r requirements.txt`). 
 - Gradient checkpointing is enabled by default (`use_reentrant=False`) to reduce activation memory during the combined 2B forward pass.
 - The Whisper audio encoder processes at 16 kHz. All audio is resampled before feature extraction.
 - `normalize_logprob_by_tokens` must be `True` (YAML default) to eliminate length bias in CE, margin, and teacher-forcing losses when label strings tokenise to different numbers of tokens.
-
-## Known Issues (Fixed)
-
-<details>
-<summary>Expand for the full list of issues identified and fixed in this codebase</summary>
-
-### Original fixes
-
-**1. `best_eval_eer` not restored on resume**
-The checkpoint saved `best_eval_eer` but the main script never extracted it from `resume_state` before passing it to `train_classification_model`. Every resume reset it to 100.0, causing spurious "best eval" checkpoint writes.
-*Fix:* `best_eval_eer` is now extracted from `resume_state` and passed explicitly. Also: `best_dev_eer` and `best_eval_eer` now independently default to 100.0 on load — they no longer fall back to `best_eer`, which could skew thresholds.
-
-**2. EOS token corruption in `create_batch` labels**
-When `pad_token_id == eos_token_id` (set via `pad_token = eos_token`), the pattern `pad_sequence(..., padding_value=pad_id)` followed by `labels[labels == pad_id] = -100` overwrote every real EOS token to `-100`.
-*Fix:* labels are now padded directly with `-100`, eliminating the collision.
-
-**3. 3× VRAM spike in `score_label_logprob` / `for_causal_lm_loss`**
-The caller held a reference to the AMP-precision logits tensor while `for_causal_lm_loss` created a fp32 copy, meaning both existed simultaneously. With vocab_size ~32K and a 2B combined batch this was hundreds of MB of hidden overhead per step.
-*Fix:* `score_label_logprob` now deletes its logits reference before calling `for_causal_lm_loss`; `for_causal_lm_loss` deletes the fp32 copy immediately after `.view()` is created.
-
-**4. Margin loss class semantics hardcoded to index 0/1**
-The margin loss block used `cls_labels == 1` to mean "spoof" regardless of how `label_texts` was configured in the YAML, violating the dynamic contract.
-*Fix:* `_spoof_key` and `_bonafide_key` are derived at startup by substring-matching `label_texts_map` values (`"spoof"` / `"bonafide"`), then used for all per-class margin assignments.
-
-**5. `_amp_ctx` recreated on every batch step**
-The `torch.autocast()` context object was instantiated inside the inner batch loop on every step.
-*Fix:* created once before the epoch loop.
-
-**6. `mask_b` / `mask_s` held in VRAM through LLM forward in eval**
-These per-candidate masks were folded into `mask_all_ev` but not deleted, sitting in VRAM through the entire LLM forward pass.
-*Fix:* explicit `del mask_b, mask_s` added immediately after concatenation.
-
-### Deep-review fixes (2025-05)
-
-**M1. EER returns (1.0, 0.5) on empty input — impossible sentinel values**
-`compute_eer_with_threshold` and `compute_eer` returned hard-coded 1.0 / 0.5 on empty input or single-class batches, making it impossible for callers to detect evaluation failure versus a genuinely bad model.
-*Fix:* both functions now return `(nan, nan)`. Callers (`eval_classification.py`) guard for nan and log a warning before returning a nan metrics dict.
-
-**M3. EER threshold not used for accuracy/eval_stats computation**
-Accuracy and per-attack stats were computed against a hardcoded 0.5 threshold instead of `threshold_softmax` (the EER operating point).
-*Fix:* `eval_stats` and `preds` now use `float(threshold_softmax)` consistently.
-
-**M4. `compute_prob_for_sequence` averaged target token ids instead of per-step id**
-Each decoding step used the mean of all target token ids rather than the positional id for that step, producing wrong per-token log-probs.
-*Fix:* step `i` now indexes `target_token_ids[i % n_ids]`.
-
-**M5. EER inverted silently when `label_texts[1]` is not the spoof class**
-If the user swapped label order in the YAML, `scores[:,1]` would be P(bonafide) and EER direction would be flipped with no warning.
-*Fix:* warning emitted at startup when `label_texts[1]` doesn't contain a spoof synonym (`"spoof"`, `"fake"`, `"synthetic"`, `"generated"`).
-
-**M6. Single-class batch returned (0.5, 0.5) EER — numerically misleading**
-`roc_curve` with only one class present raises or returns degenerate values.
-*Fix:* `(nan, nan)` returned, same as empty-input case.
-
-**M7. Non-finite EER threshold fell back to hardcoded 0.5**
-sklearn's `roc_curve` prepends `max(score)+1` as `thresholds[0]`; when this was selected as the EER threshold it was non-finite.
-*Fix:* non-finite threshold falls back to `float(np.median(y_score))`.
-
-**C1. Checkpoint cleanup deleted metric-best checkpoints**
-`cleanup_old_checkpoints` sorted all `.pt` files by mtime and deleted old ones without checking whether they were the metric-best checkpoints.
-*Fix:* `_find_protected_checkpoints()` pins `checkpoint-last.pt`, the files referenced by `best_dev_metrics.json` / `best_eval_metrics.json`, and all `.pt` files in `best_dev/` and `best_eval/` subdirectories.
-
-**C2. Mid-epoch step saves stored epoch+1 — resume skipped unfinished epoch**
-End-of-epoch saves correctly stored epoch+1 (next epoch to start), but mid-epoch step saves also wrote epoch+1, so a resume would skip the rest of the interrupted epoch entirely.
-*Fix:* mid-epoch saves store current epoch and `epoch_completed=False`. Load path reads `epoch_completed` to decide whether to re-run the epoch.
-
-**C3. RNG state not saved/restored — data order different after resume**
-torch/cuda/numpy/python RNG states were not included in checkpoints.
-*Fix:* `rng_states` dict saved in every checkpoint; restored on load.
-
-**C4. Best-checkpoint save was not atomic — corrupt file on crash mid-write**
-The best-checkpoint save wrote the `.pt` file, then the adapters, then the JSON, with no atomicity guarantees between steps.
-*Fix:* adapters written to `*.tmp` then `os.rename`; JSON written to `*.tmp` then `os.replace`. The `.pt` save already used the atomic tmp→rename path.
-
-**C5. Latest checkpoint selected by epoch/step number — wrong across mixed saves**
-When both epoch-based and step-based checkpoints exist, sorting by their numeric suffix picks the wrong file (epoch 3 < step 1000).
-*Fix:* selection is now purely by file mtime.
-
-**C7. PEFT adapter path derived from checkpoint filename — breaks on numbered ckpts**
-The adapter directory was constructed relative to the checkpoint file rather than `output_dir`, so `checkpoint-epoch5.pt` looked for adapters next to itself instead of in `output_dir/adapters/`.
-*Fix:* adapters always loaded from `output_dir/adapters/`.
-
-**C8. `best_dev_eer` / `best_eval_eer` fell back to `best_eer` on resume**
-If a checkpoint didn't contain `best_dev_eer`, the code used `best_eer` as fallback, which could be an already-improved value and prevent future best-checkpoint writes.
-*Fix:* both default to 100.0 (worst case) when absent in checkpoint.
-
-**C9. Config mismatch on resume went undetected**
-Resuming with a different `lr`, `batch_size`, or `lora_rank` produced silently wrong training with no diagnostic output.
-*Fix:* critical config keys compared on resume; mismatches print `[Resume WARNING]`.
-
-**C10. `save_checkpoint` not power-loss safe — zero-byte files on crash**
-The atomic `.tmp` → `os.replace` pattern was present but fsync was missing, so the OS could crash between write and rename leaving a partial file.
-*Fix:* fsync on the `.tmp` file and parent directory added before `os.replace`.
-
-**D1. `pad_token_id` not set when tokenizer has no pad token**
-Some tokenizers return `pad_token_id=None`; downstream padding then silently used `id=None`, causing tensor-creation errors or wrong padding values.
-*Fix:* dataset `__init__` forces `pad_token = eos_token` when `pad_token_id` is `None`.
-
-**D3. `BalancedBatchSampler` / `EnsureAtLeastOneBonafideBatchSampler` used global RNG**
-Both samplers called `random.shuffle()`, pulling from the global Python RNG and making data order non-reproducible even with a fixed seed.
-*Fix:* both use `torch.randperm(generator=self.generator)` instead.
-
-**D4. `BalancedBatchSampler.__len__` based on class-cycling, not dataset size**
-The length was computed from cycling over class lists, not the actual dataset size, causing DataLoader to under/over-iterate.
-*Fix:* returns `math.ceil(total_samples / batch_size)`.
-
-**D5. `augmentation_only_spoof` flag not propagated to RawBoost/codec pipeline**
-When `augmentation_only_spoof=True`, bonafide samples still received codec and RawBoost augmentation because the flag was never forwarded.
-*Fix:* `disable_rawboost_codec` set `True` for bonafide samples when the flag is on.
-
-**D6. ASVspoof5 protocol parsed with whitespace split instead of tab split**
-ASVspoof5 `.tsv` files are tab-separated; using `split()` collapsed multi-space fields and shifted column indices.
-*Fix:* parser uses `line.strip().split("\t")`.
-
-**D7. `collate_fn` crashed when `input_features` have different time dimensions**
-Samples with different-length spectrograms caused `torch.stack` to fail.
-*Fix:* `input_features` padded to `max_T` with zeros before stacking.
-
-**D8. `collate_fn` silently dropped keys missing from some batch items**
-If one sample was missing a key present in others, the key was silently omitted with no diagnostic.
-*Fix:* warning printed when key-parity differs across the batch.
-
-**D9. `_build_labels` tokenized reasoning steps with `add_special_tokens=True`**
-BOS tokens were injected into reasoning step labels, corrupting the teacher-forcing targets for multi-step reasoning.
-*Fix:* `add_special_tokens=False` for all reasoning step tokenization.
-
-**L4. QLoRA + gradient checkpointing produced no gradients**
-`prepare_model_for_kbit_training` was not called before `get_peft_model`, so gradient checkpointing remat hooks were missing and no gradients flowed through the quantized backbone.
-*Fix:* `prepare_model_for_kbit_training` called for all 4-bit paths.
-
-**R1. cudnn non-determinism — different results each run with same seed**
-`torch.backends.cudnn.deterministic` was not set, so convolution algorithms were chosen non-deterministically.
-*Fix:* `cudnn.deterministic=True`, `benchmark=False` set at startup.
-
-**R2. DataLoader not seeded — worker data order non-reproducible**
-DataLoader workers used default seeds, so the data order per epoch changed across runs even with a fixed torch/numpy seed.
-*Fix:* `generator=torch.Generator()` seeded with `_SEED` passed to DataLoader.
-
-**R3. Auto-resume triggered without `configs.resume=True`**
-The training loop would auto-resume from any checkpoint it found in `output_dir`, even if the user started a fresh run intentionally.
-*Fix:* auto-resume blocked unless `configs.resume=True` in the YAML.
-
-**T1. Partial gradient accumulation at epoch end used wrong loss scale**
-When the epoch ends mid-accumulation window, the gradient was computed over fewer samples but divided by the full accumulation count, making the effective LR too small for the last partial batch.
-*Fix:* loss rescaled by `(accum_steps / partial_steps)` before backward.
-
-**T2. NaN loss corrupted AdamW momentum state in bf16**
-A NaN loss from a bad batch propagated through `backward()`, poisoning the optimizer's first and second moment estimates permanently.
-*Fix:* `torch.isfinite` guard before backward; `zero_grad` + continue on NaN.
-
-**T3. Model stayed in eval mode after in-training evaluation**
-`evaluate_epoch` called `model.eval()` but the training loop never called `model.train()` afterward, disabling dropout for all subsequent steps.
-*Fix:* `model.train()` added after every eval call site in the training loop.
-
-**T4. `optimizer.zero_grad()` leaked stale gradients in low-memory situations**
-`zero_grad()` without `set_to_none=True` keeps gradient tensors allocated (filled with zeros), wasting VRAM and occasionally causing incorrect gradient accumulation when accumulation spans a GC boundary.
-*Fix:* all `zero_grad()` calls use `set_to_none=True`.
-
-**T5. `class_weights` moved to device on every batch**
-`class_weights.to(DEVICE)` was inside the batch loop, causing a device check and potentially a memory copy on every step.
-*Fix:* moved outside the epoch loop — called once before training starts.
-
-</details>
 
 ## License
 
