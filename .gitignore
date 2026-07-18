@@ -1,7 +1,11 @@
+# Local tool config (unrelated to this project)
+.vincent/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
+hf_cache/
 
 # C extensions
 *.so
@@ -25,6 +29,15 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+
+# model artifacts
+**/adapters_*/
+**/*.safetensors
+**/*.pt
+**/*.ckpt
+**/*.bin
+
 
 # PyInstaller
 #   Usually these files are written by a python script from a template
@@ -200,8 +213,6 @@ cython_debug/
 #   and can be added to the global gitignore or merged into this file. However, if you prefer, 
 #   you could uncomment the following to ignore the entire vscode folder
 # .vscode/
-# Temporary file for partial code execution
-tempCodeRunnerFile.py
 
 # Ruff stuff:
 .ruff_cache/
@@ -216,3 +227,86 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# PyTorch / Lightning
+*.ckpt
+*.pth
+*.pt
+*.bin
+*.safetensors
+*.json
+# TensorFlow / Keras
+*.h5
+*.hdf5
+saved_model/
+*.pb
+variables/
+assets/
+
+# ONNX / Exported models
+*.onnx
+*.trt
+*.engine
+
+# Optimizer / scheduler states
+*.opt
+*.state
+*.states
+
+# Training logs & caches
+logs/
+runs/
+wandb/
+mlruns/
+tensorboard/
+lightning_logs/
+
+# Temporary & cache files
+__pycache__/
+*.pyc
+*.pyo
+.cache/
+.tmp/
+temp/
+
+# Dataset artifacts
+*.npy
+*.npz
+*.pkl
+*.pickle
+*.joblib
+
+# Checkpoint folders (common names)
+ckpts/
+models/
+weights/
+snapshots/
+*.pt
+*.safetensors
+
+*.pt
+*.safetensors
+*.pt
+*.safetensors
+
+*.jsonl
+
+commonvoice_cache/
+librispeech_cache/
+
+distilled_dataset_v2_gpo.jsonl
+
+# Local LLM judge model weights
+**/download_llm_as_judge/
+
+voxtral_clean-generation-asvspoof2021-aug-bfloat16-2-constant-classification_as_generation-with-aug/scores_text_outputs/
+voxtral_clean-generation-asvspoof5-aug-bfloat16-2-constant-classification_as_generation-LLM/
+voxtral_clean-generation-asvspoof5-aug-bfloat16-2-constant-classification_as_generation-with-aug-no-margin/
+voxtral_clean-generation-asvspoof5-aug-bfloat16-2-constant-classification_as_generation-with-aug2/scores_text_outputs/
+voxtral_clean-generation-asvspoof5-aug-bfloat16-2-constant-classification_as_generation-with-aug22/
+voxtral_clean-generation-asvspoof5-aug-bfloat16-2-constant-classification_as_generation-with-aug222/
+voxtral_clean-generation-asvspoof5-aug-bfloat16-2-constant-classification_as_generation-with-aug2222/
+voxtral_clean-generation-asvspoof5-aug-bfloat16-2-constant-classification_as_generation-with-aug3/
+node_modules/
+*.vsix
+*.csv

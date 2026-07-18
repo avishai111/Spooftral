@@ -1,0 +1,195 @@
+# Classification Head Training Configuration
+# This configuration trains a 2-neuron classification head after the audio adapter
+# while keeping the audio encoder either frozen, fine-tuned, or trained with LoRA
+
+use_4bit: False
+precision: bfloat16 #AMP #bfloat16 #float32
+debug: False
+# prompts_path: "/path/to/prompts_1000.txt"  # unset -> utils/config.py falls back to the bundled utils/prompts_1000.txt
+target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
+trainable_audio_encoder: False  # NOT used by training_audio_adapter_head.py — only used by config.py to derive LANGUAGE_MODEL_ONLY_LORA. Actual audio encoder tuning is controlled by audio_adapter_head.audio_encoder_tuning below.
+audio_encoder_mode: "dora"           # Controls audio encoder tuning (frozen | finetune | lora | dora). Used for wandb run name and as fallback for audio_adapter_head.audio_encoder_tuning.
+encoder_type: None  # null=use Voxtral audio tower; wav2vec2/hubert/wavlm use external encoder
+constant_prompts_flag: True
+constant_prompt_override: null  # set a string to override the default prompt ("Is this speech spoof or bonafide?")
+three_random_prompts: False
+three_random_prompt_variants:
+  - "Is this speech spoof or bonafide?"
+  - "This audio is real or fake ?"
+  - "Classify the audio as bonafide or spoof."
+save_lr_and_grad_norm_debug: False
+debug_logging: False
+log_eval_examples: True
+log_eval_stats: False
+
+wandb:
+  enable: True
+  entity: null  # set to your W&B entity/team (null uses your default W&B account)
+  project: "Spoofstral"
+  name:  "voxtral_clean-classification-head-{DATASET}-{precision}-{audio_encoder_mode}-2"
+  id: null
+  resume: "allow"
+  dir: "/path/to/voxtral_clean/wandb/"
+  mode: "online"
+  watch_log: "none"
+  watch_log_freq: 500
+
+DATASET: "asvspoof5"
+NUM_OF_TOKENS: 2
+N_audio_tokens: 375
+k_downsample: 4
+project: "voxtral_clean-classification-head-{DATASET}-{precision}"
+save_path: "/path/to/voxtral_clean/"
+name: "voxtral_clean-classification-head-{DATASET}-{precision}-{audio_encoder_mode}-2"
+
+finetune_mode: 'dora'  # OPTIMIZED: DoRA for +1-2% performance improvement over LoRA
+lora_rank: 32
+lora_alpha: 64
+lora_dropout: 0.05
+
+# Apply DoRA/LoRA to multi_modal_projector (freezes base projector weights).
+# Requires finetune_mode in ('lora', 'dora'). Default False = projector trained end-to-end.
+projector_peft: False
+
+ensure_bonafide_in_batch: False
+balance_bonafide_spoof: False
+use_margin_loss: False
+margin_bonafide: 0.1
+margin_spoof: 0.05
+lambda_margin: 0.05
+
+optimizer: "auto"
+lr: !!float "1e-4"  # Higher LR for classification head training
+weight_decay: 0.05
+betas: [0.9, 0.99]
+eps: 1e-8
+momentum: 0.9
+
+only_eval: False
+
+# Loss configuration for classification head
+use_weighted_loss: True
+class_weights:
+  bonafide: null
+  spoof: null
+
+# Adapter-head experiment options (used by training_audio_adapter_head.py)
+audio_adapter_head:
+  enable: True                      # Toggle this experiment on/off
+  audio_encoder_tuning: "dora"          # frozen | finetune | lora | dora
+  pooling_strategy: "mean"           # how to pool adapter outputs before the head
+  head_hidden_dim: 512               # 0 disables the hidden layer (direct 3072->2)
+  head_dropout: 0.1
+  train_audio_adapter: True          # keep the adapter trainable alongside the head
+  load_pretrained_audio_stack: True  # load pretrained audio encoder+adapter weights
+  pretrained_checkpoint: null        # optional checkpoint override for the audio stack
+  use_weighted_loss: True            # reuse class_weights for the head loss
+  drop_language_model: True          # remove the LLM entirely for adapter-head training to save VRAM
+  quantize_language_model_4bit: False  # quantize LLM to 4-bit to save VRAM (keeps audio full precision)
+  offload_language_model: False        # move LLM to CPU to save GPU memory
+
+generation_classification:
+  enable: False
+  label_texts:
+    0: "bonafide"
+    1: "spoof"
+
+eval_on_test_during_training: True
+eval_on_training_set_during_training: True
+eval_on_asvspoof2021_during_training: False
+
+model_id: mistralai/Voxtral-Mini-3B-2507
+seed: 42
+
+BATCH_SIZE: 64  # Can use larger batch since we're not running the LM
+eval_batch_size: 128
+NUM_EPOCHS: 30
+NUM_WORKERS: 8
+train_by: "epochs"
+max_train_steps: 30000
+
+gradient_accumulation_steps: 8
+max_grad_norm: 1.0
+gradient_checkpointing: true
+
+train_protocol: /path/to/projects/ASVspoof5/ASVspoof5_protocols/ASVspoof5.train.tsv
+dev_protocol: /path/to/projects/ASVspoof5/ASVspoof5_protocols/ASVspoof5.dev.track_1.tsv
+eval_protocol: /path/to/projects/ASVspoof5/ASVspoof5_protocols/ASVspoof5.eval.track_1.tsv
+
+train_audio_dir: /path/to/projects/ASVspoof5/flac_T
+dev_audio_dir: /path/to/projects/ASVspoof5/flac_D
+eval_audio_dir: /path/to/projects/ASVspoof5/flac_E/flac_E_eval
+
+asvspoof2021_eval_protocol: /path/to/projects/ASVspoof2021/LA-keys-full/keys/LA/CM/trial_metadata.txt
+asvspoof2021_eval_audio_dir:  /path/to/projects/ASVspoof2021/ASVspoof2021_LA_eval/ASVspoof2021_LA_eval/flac/
+
+model:
+  num_classes: 2
+  eval_every: 5
+  eval_every_steps: 4000
+  log_every: 50
+  save_every: 1
+  save_every_steps: 2000
+  save_best_only: False  # Only keep best dev/eval checkpoints for adapter-head training
+  save_only_trainable: false  # When true, save only trainable (requires_grad=True) weights instead of full model
+  save_only_adapters: false   # When true, save only LoRA/DoRA adapter weights (error if other trainable params exist)
+
+# Early evaluation at specific epochs (empty list = disabled)
+initial_eval_epochs: []           # Run dev eval at these specific epochs, e.g. [0, 1, 1000]
+initial_eval_epochs_eval: []      # Run test eval at these specific epochs
+
+augmentation_on: true  # STRATEGY B: Conservative augmentation for cross-dataset generalization
+augmentation_only_spoof: False  # When True, non-rawboost/codec augmentations apply only to spoof samples
+augmentation_prob: 0.8 # Probability of applying augmentation
+prob_rawboost_no_codec: 0.0   # DISABLED: No RawBoost
+prob_codec_no_rawboost: 1.0   # 100% codec simulation when augmentation is applied
+prob_both: 0.0               # DISABLED: No RawBoost+codec combination
+RAWBOOST_ENABLE: false  # Toggle RawBoost (LnL/ISD/SSI) augmentation
+RAWBOOST_ALGO: 5        # Default RawBoost chain (1+2+3 in series)
+AUG_TIME_MASK: true
+AUG_TIME_MASK_PARAM: 128
+AUG_FREQ_MASK: true
+AUG_FREQ_MASK_PARAM: 32
+AUG_ADD_NOISE: true
+AUG_NOISE_STD: 0.01
+GAIN_PERTURB: true
+GAIN_MIN_DB: -6.0
+GAIN_MAX_DB: 6.0
+TIMESHIFT_PERTURB: true
+TIMESHIFT_MAX_FRAC: 0.1
+TIMESHIFT_WRAP: true
+AUG_SPEED_PERTURB: false
+AUG_SPEED_MIN: 0.95  # REDUCED: Narrower speed range (was 0.95)
+AUG_SPEED_MAX: 1.05  # REDUCED: Narrower speed range (was 1.05)
+CODEC_PERTURB: true
+CODEC_CHOICES: ["mp3","aac","opus","flac","wav","g722","amr","g711a","g711u","gsm","m4a","alac","speex","g726"]
+BITRATE_KBPS_MIN: 12
+BITRATE_KBPS_MAX: 96  # MODERATE: Not too aggressive (was 96)
+KEEP_ORIGINAL_SR_AFTER_CODEC: true
+PREFER_FFMPEG: true
+WAVEFORM_DROPOUT: false
+WAVEFORM_DROPOUT_MAX_FRAC: 0.02  # REDUCED: Less dropout (was 0.03)
+WAVEFORM_DROPOUT_NUM_SPANS: 1
+BANDPASS_PERTURB: false 
+BANDPASS_MIN_LOW_HZ: 300.0    # Telephony typically cuts below 300Hz
+BANDPASS_MAX_HIGH_HZ: 3400.0  # And above 3400Hz
+BANDPASS_MIN_WIDTH_HZ: 2000.0
+CLIP_PERTURB: false
+CLIP_MIN: 0.5
+CLIP_MAX: 0.98
+
+SELECTIVE_AUGMENTATION: true
+MAX_AUGMENTATIONS_PER_SAMPLE: 4
+MAX_AUGMENTATIONS_PER_SPECTROGRAM: 3
+
+lr_scheduler_type: "cosine"
+scheduler:
+  warmup_ratio: 0.05
+  cosine_cycles: 1
+  poly_power: 2.0
+  exp_gamma: 0.97
+  step_size: 1500
+  step_gamma: 0.9
+
+PAD_FEATURES_MODE: 'zero'
+PAD_WAVEFORM_MODE: 'none'

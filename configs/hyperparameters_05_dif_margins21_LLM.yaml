@@ -1,0 +1,200 @@
+use_4bit: False
+precision: bfloat16 #AMP #bfloat16 #float32
+debug: False
+# prompts_path: "/path/to/prompts_1000.txt"  # unset -> utils/config.py falls back to the bundled utils/prompts_1000.txt
+language_model_only_lora: True #True
+target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"] # ["q_proj", "k_proj", "v_proj", "o_proj"]
+trainable_audio_encoder: "frozen"  # Options: False/"frozen" (all frozen), True/"trainable" (full fine-tuning), "dora" (DoRA adapters only, base weights frozen)
+encoder_type: None  # null=use Voxtral audio tower; wav2vec2/hubert/wavlm use external encoder
+constant_prompts_flag: True
+constant_prompt_override: null  # set a string to override the default prompt ("Is this speech spoof or bonafide?")
+three_random_prompts: False  # Enable sampling among three prompt paraphrases during training
+three_random_prompt_variants:
+  - "Is this speech spoof or bonafide?"
+  - "This audio is real or fake ?"
+  - "Classify the audio as bonafide or spoof."
+save_lr_and_grad_norm_debug: False
+debug_logging: False
+log_eval_examples: True
+log_eval_stats: False
+
+wandb:
+  enable: True
+  entity: null  # set to your W&B entity/team (null uses your default W&B account)
+  project: "Spoofstral"
+  name:  "voxtral_clean-run-{DATASET}-aug-{precision}-{NUM_OF_TOKENS}-constant-classification_as_generation-with-aug21LLM"
+  id: null              # set to a fixed run id if you want resume: "must"
+  resume: "allow"       # or "must"
+  dir: "/path/to/voxtral_clean/wandb/"             # or point this at OUTPUT_DIR if you want it fixed
+  mode: "online"        # or "offline"/"disabled"
+  watch_log: "none" #"gradients"
+  watch_log_freq: 500      # higher value reduces logging overhead
+
+# need 4 gpus
+DATASET: "asvspoof5"  # or "asvspoof5" or "custom"
+NUM_OF_TOKENS: 2
+N_audio_tokens: 375 #375
+k_downsample: 4 #4
+project: "voxtral_clean-generation-{DATASET}-{precision}-{NUM_OF_TOKENS}-constant-classification_as_generation-with-aug21LLM"
+save_path: "/path/to/voxtral_clean/"
+name: "voxtral_clean-generation-{DATASET}-aug-{precision}-{NUM_OF_TOKENS}-constant-classification_as_generation-with-aug21LLM"
+#output_dir: "/path/to/voxtral_clean/voxtral-generation-asvspoof5-1"
+
+finetune_mode: 'dora'  # OPTIMIZED: DoRA for +1-2% performance improvement over LoRA
+lora_rank: 32
+lora_alpha: 64
+lora_dropout: 0.05
+
+# Apply DoRA/LoRA to multi_modal_projector (freezes base projector weights).
+# Requires finetune_mode in ('lora', 'dora'). Default False = projector trained end-to-end.
+projector_peft: False
+
+ensure_bonafide_in_batch: False  # OCSoftmax doesn't need forced bonafide in each batch
+balance_bonafide_spoof: False     # OCSoftmax handles imbalance through one-class learning
+use_margin_loss: True
+margin_bonafide: 0.1
+margin_spoof: 0.05
+lambda_margin: 0.05
+
+optimizer: "auto"   # auto, adamw, adamw8bit, sgd
+lr: !!float "1e-4"
+weight_decay: 0.05
+betas: [0.9, 0.99]
+eps: 1e-8
+momentum: 0.9            # used only for SGD
+
+only_eval: False
+
+# ===== Task selection =====
+#TASK: "classification"
+#TASK: "text_generation"
+
+# Task Mode
+#task_mode: classification_as_generation
+#task_mode: pooled_ce
+
+generation_classification:           # settings for classification-as-generation
+  enable: True
+  label_texts:
+    0: "bonafide"
+    1: "spoof"
+  max_answer_tokens: 4               # truncate label token sequence
+  normalize_logprob_by_tokens: True  # length-normalize label scores
+  temperature: 1.0                   # temperature for logprob
+  loss_weight: 1.0                   # LM loss weight in this mode
+  teacher_forcing_loss: False        # optionally add LM teacher-forcing loss as regularizer
+  teacher_forcing_loss_lambda: 0.1   # scaling factor (0-1) for teacher-forcing regularizer
+  loss_type: "cross_entropy"
+  loss_params: {}
+  use_weighted_loss: True  # NEW: Separate control for CAG mode weighted loss
+  
+
+class_weights:
+  bonafide: null
+  spoof: null
+
+eval_on_test_during_training: True
+eval_on_training_set_during_training: True
+eval_on_asvspoof2021_during_training: False
+
+model_id: mistralai/Voxtral-Mini-3B-2507
+seed: 42
+
+BATCH_SIZE: 24            # if debug: 2
+eval_batch_size: 32
+NUM_EPOCHS: 20           # if debug: 1
+NUM_WORKERS: 8          # if debug: 1
+train_by: "epochs"      # "epochs" or "steps"
+max_train_steps: 30000    # required when train_by == "steps"
+
+gradient_accumulation_steps: 8
+max_grad_norm: 1.0  # CRITICAL: Prevents gradient explosions with DoRA + heavy augmentation
+gradient_checkpointing: true
+
+train_protocol: /path/to/projects/ASVspoof5/ASVspoof5_protocols/ASVspoof5.train.tsv
+dev_protocol: /path/to/projects/ASVspoof5/ASVspoof5_protocols/ASVspoof5.dev.track_1.tsv
+eval_protocol: /path/to/projects/ASVspoof5/ASVspoof5_protocols/ASVspoof5.eval.track_1.tsv
+
+#eval_protocol: /path/to/projects/ASVspoof2021/LA-keys-full/keys/LA/CM/trial_metadata.txt
+
+train_audio_dir: /path/to/projects/ASVspoof5/flac_T
+dev_audio_dir: /path/to/projects/ASVspoof5/flac_D
+eval_audio_dir: /path/to/projects/ASVspoof5/flac_E/flac_E_eval
+
+#eval_audio_dir: /path/to/projects/ASVspoof2021/ASVspoof2021_LA_eval/ASVspoof2021_LA_eval/flac/
+asvspoof2021_eval_protocol: None
+asvspoof2021_eval_audio_dir:  None
+
+model:
+  num_classes: 2               # For classification head (spoof/bonafide)
+  eval_every: 5              # Evaluate every N epochs
+  eval_every_steps: 4000      # Evaluate every N steps (when train_by == "steps")
+  log_every: 50               # Log every N steps
+  save_every: 1
+  save_every_steps: 2000     # Save every N steps (when train_by == "steps")
+  save_only_trainable: false  # When true, save only trainable (requires_grad=True) weights instead of full model
+  save_only_adapters: false   # When true, save only LoRA/DoRA adapter weights (error if other trainable params exist)
+  
+
+augmentation_on: true  # STRATEGY B: Conservative augmentation for cross-dataset generalization
+augmentation_only_spoof: False  # When True, non-rawboost/codec augmentations apply only to spoof samples
+augmentation_prob: 0.8  # Reduced from 0.3 to apply augmentation less frequently
+RAWBOOST_ENABLE: false  # Toggle RawBoost (LnL/ISD/SSI) augmentation
+RAWBOOST_ALGO: 4        # Default RawBoost chain (1+2+3 in series)
+AUG_TIME_MASK: true
+AUG_TIME_MASK_PARAM: 128
+AUG_FREQ_MASK: true
+AUG_FREQ_MASK_PARAM: 32
+AUG_ADD_NOISE: true
+AUG_NOISE_STD: 0.01  # REDUCED: Less aggressive noise (was 0.05)
+GAIN_PERTURB: true
+GAIN_MIN_DB: -6.0
+GAIN_MAX_DB: 6.0
+TIMESHIFT_PERTURB: true
+TIMESHIFT_MAX_FRAC: 0.1  # REDUCED: Less time shifting (was 0.25)
+TIMESHIFT_WRAP: true
+AUG_SPEED_PERTURB: false
+AUG_SPEED_MIN: 0.95  # REDUCED: Narrower speed range (was 0.95)
+AUG_SPEED_MAX: 1.05  # REDUCED: Narrower speed range (was 1.05)
+CODEC_PERTURB: true
+CODEC_CHOICES: ["mp3","aac","opus","flac","wav","g722","amr","g711a","g711u","gsm", "m4a","alac", "amr", "speex" , "g726"]  # "mp3" , "aac", "m4a", "opus", "flac", "alac", "amr", "speex" , "g726", "g711a", "g711u", "g722", "wav" # BALANCED: Mix of high-quality + telephony for eval compatibility # BALANCED: Mix of high-quality + telephony for eval compatibility
+BITRATE_KBPS_MIN: 12   # INCREASED: Reasonable quality range (was 32)
+BITRATE_KBPS_MAX: 96  # MODERATE: Not too aggressive (was 96)
+KEEP_ORIGINAL_SR_AFTER_CODEC: true
+PREFER_FFMPEG: true
+WAVEFORM_DROPOUT: false
+WAVEFORM_DROPOUT_MAX_FRAC: 0.02  # REDUCED: Less dropout (was 0.03)
+WAVEFORM_DROPOUT_NUM_SPANS: 1
+BANDPASS_PERTURB: false
+BANDPASS_MIN_LOW_HZ: 200.0
+BANDPASS_MAX_HIGH_HZ: 6000.0
+BANDPASS_MIN_WIDTH_HZ: 1000.0
+CLIP_PERTURB: false
+CLIP_MIN: 0.5
+CLIP_MAX: 0.98
+
+# NEW: Selective Augmentation Mode - Apply augmentations separately instead of# Selective augmentation mode
+SELECTIVE_AUGMENTATION: true  # Enable to prevent compounding degradation
+MAX_AUGMENTATIONS_PER_SAMPLE: 4  # Maximum waveform augmentations when selective mode enabled
+MAX_AUGMENTATIONS_PER_SPECTROGRAM: 3  # Maximum spectrogram augmentations when selective mode enabled (FIXED: was 3, should be 1)
+
+# ["mp3","aac","m4a","opus","flac","alac","amr","speex","g726","g711a","g711u","g722","wav"]
+# scheduler:
+lr_scheduler_type: "cosine" #"cosine"
+scheduler:
+  warmup_ratio: 0.05  # OPTIMIZED: Increased to 5% for better training start
+  # cosine_with_restarts
+  cosine_cycles: 1
+  # polynomial
+  poly_power: 2.0
+
+  # exponential
+  exp_gamma: 0.97
+
+  # step
+  step_size: 1500
+  step_gamma: 0.9
+
+PAD_FEATURES_MODE: 'zero'  # FIXED: Standard padding instead of tile_aug to avoid unrealistic patterns
+PAD_WAVEFORM_MODE:  'none'
+

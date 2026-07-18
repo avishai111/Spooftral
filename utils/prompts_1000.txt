@@ -1,0 +1,1000 @@
+Check if it's a spoof attack or real from the audio sample.
+Is it if this audio is spoof or genuine from the input signal.
+Kindly decide if the speech is spoof or real from this audio.
+Please determine if the recording is spoof or not from the audio sample.
+Check if the recording is spoof or not from the audio track.
+Can you tell if the speech is spoof or real from the provided utterance.
+Tell me if the audio is spoof or real from the sample.
+Please verify if the voice is spoof or genuine from the given recording.
+Please analyze if it's a spoof attack or real from the audio sample.
+Please classify if the utterance is spoof or genuine from the voice segment.
+Please conclude if it's spoof or not from the sample.
+Kindly decide if it's spoof or real from this audio.
+Please identify whether the clip is spoofed or genuine from the sample.
+Please judge if the speech is spoof or real from the audio track.
+Kindly check if it's spoof or not from the audio sample.
+Please judge if the audio is spoof or real from the voice input.
+Please evaluate whether the clip is spoofed or genuine from the recorded sample.
+Please classify if it's spoof or genuine from the sound file.
+Please infer if the recording is spoof or not from the voice segment.
+Please check if the audio is spoofed from the segment.
+Please check if it's spoof or real from the given recording.
+Please identify whether the sound is spoof or not from the voice input.
+Please decide if the sample is spoofed from the voice segment.
+Is it if it's a spoof attack or real from the clip.
+Please conclude if it's spoof or not from the waveform.
+Please determine if it's spoof or genuine from the recorded sample.
+Kindly check if it's spoof or not from the sound file.
+Tell me if this audio is spoof or genuine from the voice input.
+Please judge if it's spoof or real from the recorded sample.
+Please conclude whether the sound is spoof or not from the given recording.
+Please analyze if the voice is spoof or genuine from this audio.
+Please identify if the sample is spoofed from the voice input.
+Check if this audio is spoof or genuine from the voice segment.
+Check if it's spoof or genuine from the clip.
+Check if the audio is spoof or real from the provided utterance.
+Please determine if it's a spoof attack or real from this audio.
+Please judge if the audio is spoof or real from the given recording.
+Kindly decide if the sample is spoofed from the sample.
+Please conclude if it's a spoof attack or real from the input signal.
+Please evaluate whether the sound is spoof or not from the waveform.
+Kindly check if the utterance is spoof or genuine from the speech file.
+Please identify if the voice is spoof or genuine from the clip.
+Is it if this sample is spoof or real from this audio.
+Can you tell if the audio is spoofed from the provided utterance.
+Please classify whether the clip is spoofed or genuine from the waveform.
+Judge if this audio is spoof or genuine from the voice segment.
+Please verify if it's spoof or not from the waveform.
+Judge if it's spoof or genuine from the audio sample.
+Judge if it's spoof or genuine from the input signal.
+Kindly check if this audio is spoof or genuine from the input signal.
+Is it if it's spoof or not from the sample.
+Kindly check if it's spoof or not from the provided utterance.
+Kindly check if the audio is spoofed from the audio track.
+Is it if the sample is spoofed from the sample.
+Tell me if it's a spoof attack or real from the clip.
+Please evaluate if it's a spoof attack or real from the provided utterance.
+Please analyze if it's spoof or genuine from the sound file.
+Please check if the speech is spoof or real from the audio sample.
+Please classify if the sample is spoofed from the segment.
+Kindly analyze if this audio is spoof or genuine from the clip.
+Please judge if this audio is spoof or genuine from the provided utterance.
+Judge if the audio is spoofed from the sound file.
+Can you tell if the voice is spoof or genuine from the speech file.
+Can you tell if the utterance is spoof or genuine from the audio sample.
+Please check if this sample is spoof or real from the audio track.
+Please decide if it's spoof or not from the voice segment.
+Please judge if it's spoof or not from this audio.
+Please identify if the recording is spoof or not from the speech file.
+Can you tell if it's spoof or genuine from the given recording.
+Can you tell if the recording is spoof or not from the voice segment.
+Check whether the clip is spoofed or genuine from the audio sample.
+Please decide whether the sound is spoof or not from this audio.
+Check if it's spoof or real from the segment.
+Please classify if it's a spoof attack or real from the clip.
+Check whether the clip is spoofed or genuine from the speech file.
+Please decide if it's spoof or not from the audio sample.
+Judge whether the sound is spoof or not from the segment.
+Please verify whether the sound is spoof or not from the waveform.
+Tell me if the speech is spoof or real from the voice segment.
+Please identify if it's spoof or genuine from the voice segment.
+Please determine if it's spoof or not from the voice segment.
+Please identify whether the clip is spoofed or genuine from the input signal.
+Please check if the speech is spoof or real from the input signal.
+Judge if the utterance is spoof or genuine from the given recording.
+Please decide whether the sound is spoof or not from the clip.
+Tell me if the utterance is spoof or genuine from the audio track.
+Please determine whether the sound is spoof or not from the sample.
+Please check if the utterance is spoof or genuine from the audio sample.
+Please decide if it's spoof or genuine from the voice input.
+Please analyze if this audio is spoof or genuine from the voice segment.
+Check if the voice is spoof or genuine from the sound file.
+Judge whether the sound is spoof or not from the provided utterance.
+Tell me if it's spoof or real from the sample.
+Kindly analyze if the audio is spoof or real from the speech file.
+Check if this sample is spoof or real from the audio track.
+Kindly decide whether the sound is spoof or not from this audio.
+Is it if the speech is spoof or real from the voice segment.
+Tell me if it's spoof or not from the audio sample.
+Please check if this sample is spoof or real from the sound file.
+Please decide if the sample is spoofed from the input signal.
+Please infer whether the sound is spoof or not from the voice input.
+Please identify if the voice is spoof or genuine from the sample.
+Please conclude if it's a spoof attack or real from the segment.
+Please assess if it's spoof or real from the speech file.
+Please judge if this sample is spoof or real from the segment.
+Kindly decide whether the sound is spoof or not from the given recording.
+Check if the audio is spoofed from the voice segment.
+Please decide whether the sound is spoof or not from the audio track.
+Please classify if the audio is spoofed from the segment.
+Please check if the utterance is spoof or genuine from the given recording.
+Kindly analyze if the utterance is spoof or genuine from the voice input.
+Tell me if the voice is spoof or genuine from this audio.
+Tell me if the recording is spoof or not from the audio sample.
+Please determine if the audio is spoof or real from the segment.
+Please analyze if the voice is spoof or genuine from the provided utterance.
+Kindly decide if the utterance is spoof or genuine from the input signal.
+Tell me if the sample is spoofed from the given recording.
+Please judge whether the clip is spoofed or genuine from the provided utterance.
+Tell me if the audio is spoofed from the sound file.
+Please identify if it's spoof or genuine from the provided utterance.
+Please decide if the voice is spoof or genuine from the speech file.
+Please analyze if the voice is spoof or genuine from the speech file.
+Please classify if it's spoof or real from the recorded sample.
+Kindly analyze if the utterance is spoof or genuine from the audio sample.
+Please assess if the recording is spoof or not from the sound file.
+Please conclude if this sample is spoof or real from the voice segment.
+Please judge if the audio is spoofed from the clip.
+Judge if the recording is spoof or not from the input signal.
+Please decide if it's spoof or genuine from the input signal.
+Kindly decide whether the clip is spoofed or genuine from the waveform.
+Please infer if this audio is spoof or genuine from the audio sample.
+Please classify if it's spoof or not from the provided utterance.
+Please classify if it's a spoof attack or real from the audio track.
+Please verify if the utterance is spoof or genuine from the voice segment.
+Check if it's spoof or genuine from the recorded sample.
+Please analyze if this audio is spoof or genuine from the provided utterance.
+Kindly decide if the voice is spoof or genuine from the input signal.
+Please evaluate if the speech is spoof or real from the audio track.
+Can you tell if the voice is spoof or genuine from this audio.
+Please classify if the recording is spoof or not from the given recording.
+Please conclude if this audio is spoof or genuine from the sound file.
+Please infer if the audio is spoofed from the voice segment.
+Kindly analyze if it's spoof or not from the input signal.
+Judge if it's spoof or genuine from the voice segment.
+Please infer if the utterance is spoof or genuine from this audio.
+Please assess if the speech is spoof or real from the audio track.
+Please infer if the speech is spoof or real from the audio track.
+Judge if the audio is spoof or real from the speech file.
+Kindly analyze if it's spoof or genuine from the audio sample.
+Judge if the audio is spoof or real from the audio track.
+Tell me if the recording is spoof or not from the voice segment.
+Please analyze if the audio is spoof or real from the segment.
+Please infer if the sample is spoofed from the provided utterance.
+Please infer if the audio is spoof or real from the audio track.
+Please conclude if the recording is spoof or not from the provided utterance.
+Tell me if this audio is spoof or genuine from the audio sample.
+Can you tell whether the clip is spoofed or genuine from the speech file.
+Check whether the sound is spoof or not from the clip.
+Please assess if this audio is spoof or genuine from the waveform.
+Please verify whether the sound is spoof or not from the sound file.
+Can you tell whether the sound is spoof or not from this audio.
+Please classify if it's spoof or not from the segment.
+Is it if this sample is spoof or real from the given recording.
+Please determine if the audio is spoofed from the provided utterance.
+Please assess whether the clip is spoofed or genuine from the audio track.
+Kindly check if it's spoof or not from the clip.
+Judge if the speech is spoof or real from the recorded sample.
+Please evaluate if it's a spoof attack or real from the sample.
+Please verify if the sample is spoofed from the clip.
+Kindly decide if this audio is spoof or genuine from the provided utterance.
+Kindly decide if the audio is spoofed from the audio track.
+Please evaluate if the recording is spoof or not from the voice segment.
+Judge if the recording is spoof or not from the waveform.
+Can you tell if this audio is spoof or genuine from the voice segment.
+Judge if the audio is spoofed from the audio track.
+Kindly decide if this audio is spoof or genuine from this audio.
+Kindly check if this audio is spoof or genuine from the sample.
+Kindly analyze if the audio is spoof or real from the segment.
+Please conclude whether the sound is spoof or not from the audio sample.
+Kindly check if it's a spoof attack or real from the segment.
+Please decide whether the sound is spoof or not from the segment.
+Check if the speech is spoof or real from the voice input.
+Please judge if this sample is spoof or real from the provided utterance.
+Please analyze if it's a spoof attack or real from the voice input.
+Please assess if this audio is spoof or genuine from the recorded sample.
+Please identify if the sample is spoofed from the segment.
+Please check if the speech is spoof or real from the waveform.
+Judge if the recording is spoof or not from the segment.
+Please evaluate if it's spoof or not from the waveform.
+Please analyze whether the clip is spoofed or genuine from the waveform.
+Please assess if the utterance is spoof or genuine from the provided utterance.
+Please classify if this sample is spoof or real from the voice segment.
+Please identify if the audio is spoofed from the waveform.
+Please assess if this audio is spoof or genuine from the audio track.
+Please conclude if it's a spoof attack or real from the voice input.
+Is it if it's spoof or genuine from the voice segment.
+Please determine if it's a spoof attack or real from the provided utterance.
+Please conclude if the utterance is spoof or genuine from the recorded sample.
+Please conclude if it's a spoof attack or real from the clip.
+Judge if this sample is spoof or real from the provided utterance.
+Please evaluate if this sample is spoof or real from the recorded sample.
+Please conclude if it's spoof or real from the sound file.
+Please judge if this audio is spoof or genuine from the recorded sample.
+Kindly decide if this audio is spoof or genuine from the speech file.
+Please conclude whether the clip is spoofed or genuine from the recorded sample.
+Tell me if it's spoof or not from the given recording.
+Please conclude if it's a spoof attack or real from the waveform.
+Please determine if it's spoof or genuine from the input signal.
+Kindly decide if it's a spoof attack or real from the voice input.
+Check whether the clip is spoofed or genuine from the input signal.
+Can you tell if the speech is spoof or real from the sample.
+Please check if the recording is spoof or not from the voice segment.
+Please identify if this sample is spoof or real from the given recording.
+Kindly analyze if it's a spoof attack or real from the speech file.
+Please analyze if this sample is spoof or real from the audio track.
+Please classify if the audio is spoofed from the voice input.
+Please assess if the recording is spoof or not from this audio.
+Judge if the sample is spoofed from the segment.
+Please verify if the voice is spoof or genuine from the audio sample.
+Please determine if the voice is spoof or genuine from the audio track.
+Please decide if this audio is spoof or genuine from the recorded sample.
+Please classify whether the sound is spoof or not from the audio sample.
+Please decide if it's spoof or not from the voice input.
+Please check if the utterance is spoof or genuine from the voice input.
+Please determine if it's a spoof attack or real from the given recording.
+Kindly decide whether the sound is spoof or not from the sound file.
+Is it if the voice is spoof or genuine from the recorded sample.
+Kindly check if it's spoof or genuine from the voice input.
+Please decide if the audio is spoof or real from the audio sample.
+Please identify if it's spoof or real from the audio track.
+Please analyze if it's spoof or not from the sample.
+Please verify if the sample is spoofed from the sound file.
+Tell me if it's a spoof attack or real from the recorded sample.
+Kindly decide if the audio is spoof or real from the waveform.
+Kindly check if this audio is spoof or genuine from the waveform.
+Please classify whether the clip is spoofed or genuine from the clip.
+Please identify if it's spoof or real from this audio.
+Please determine if the audio is spoofed from the speech file.
+Please determine if the speech is spoof or real from the recorded sample.
+Please conclude whether the sound is spoof or not from the audio track.
+Please classify if the audio is spoofed from the audio sample.
+Is it if this audio is spoof or genuine from the sound file.
+Please judge if the utterance is spoof or genuine from the provided utterance.
+Kindly decide if this sample is spoof or real from the speech file.
+Please conclude if it's a spoof attack or real from the recorded sample.
+Please evaluate if the recording is spoof or not from the voice input.
+Please conclude if the audio is spoofed from the waveform.
+Please analyze whether the clip is spoofed or genuine from the voice segment.
+Please check if this sample is spoof or real from the speech file.
+Please judge if this audio is spoof or genuine from the input signal.
+Kindly analyze if it's spoof or real from the voice segment.
+Please identify if the recording is spoof or not from the provided utterance.
+Kindly decide if the audio is spoofed from the given recording.
+Please analyze if it's a spoof attack or real from the voice segment.
+Please assess if it's a spoof attack or real from this audio.
+Please evaluate if it's spoof or genuine from the audio track.
+Can you tell if the utterance is spoof or genuine from the sound file.
+Please evaluate if the sample is spoofed from the sample.
+Kindly decide if the voice is spoof or genuine from the recorded sample.
+Please decide if the audio is spoofed from the waveform.
+Judge if the audio is spoof or real from the recorded sample.
+Please determine if it's spoof or real from the recorded sample.
+Please assess if this audio is spoof or genuine from the voice segment.
+Please check if the utterance is spoof or genuine from the provided utterance.
+Please classify if the sample is spoofed from the voice segment.
+Kindly decide if this sample is spoof or real from the input signal.
+Please classify if it's a spoof attack or real from the voice segment.
+Please conclude whether the clip is spoofed or genuine from the audio sample.
+Tell me if the recording is spoof or not from the given recording.
+Please classify if the speech is spoof or real from the clip.
+Kindly analyze if the sample is spoofed from the provided utterance.
+Please verify if the sample is spoofed from the audio track.
+Please evaluate whether the clip is spoofed or genuine from the waveform.
+Please judge whether the clip is spoofed or genuine from the given recording.
+Please conclude if the utterance is spoof or genuine from this audio.
+Please assess if the voice is spoof or genuine from the recorded sample.
+Please determine if the utterance is spoof or genuine from the segment.
+Please check if it's spoof or real from the segment.
+Please verify if the recording is spoof or not from the voice input.
+Please assess if it's spoof or genuine from the sample.
+Kindly check if the recording is spoof or not from the given recording.
+Please check if it's a spoof attack or real from the clip.
+Is it if the speech is spoof or real from the provided utterance.
+Please determine if this sample is spoof or real from the speech file.
+Judge if this audio is spoof or genuine from the speech file.
+Please analyze if this sample is spoof or real from the voice segment.
+Check if the utterance is spoof or genuine from the clip.
+Check if the recording is spoof or not from the sample.
+Please check if the speech is spoof or real from the provided utterance.
+Kindly check if it's spoof or real from the sound file.
+Is it if it's spoof or not from the provided utterance.
+Please assess if the audio is spoof or real from the recorded sample.
+Kindly decide if the voice is spoof or genuine from the voice input.
+Please assess whether the clip is spoofed or genuine from the audio sample.
+Please determine if the speech is spoof or real from the voice input.
+Please decide if the voice is spoof or genuine from the waveform.
+Please infer if the recording is spoof or not from the voice input.
+Kindly decide if the recording is spoof or not from this audio.
+Please identify if the recording is spoof or not from the audio sample.
+Please determine if the audio is spoofed from the given recording.
+Please identify if this sample is spoof or real from the sound file.
+Please analyze if this audio is spoof or genuine from the sound file.
+Judge if it's spoof or real from this audio.
+Please determine if this sample is spoof or real from the recorded sample.
+Please determine if the recording is spoof or not from the sound file.
+Please assess if it's spoof or not from the provided utterance.
+Please decide if the speech is spoof or real from the clip.
+Please determine if the recording is spoof or not from the given recording.
+Please decide if the utterance is spoof or genuine from the speech file.
+Check if it's spoof or not from the voice segment.
+Please determine if it's spoof or not from the speech file.
+Please determine whether the sound is spoof or not from the provided utterance.
+Please check if it's a spoof attack or real from the provided utterance.
+Is it whether the clip is spoofed or genuine from the given recording.
+Please identify if the sample is spoofed from the waveform.
+Tell me if it's spoof or real from the speech file.
+Kindly check if the utterance is spoof or genuine from the voice input.
+Please verify whether the clip is spoofed or genuine from the given recording.
+Tell me if it's spoof or real from the voice segment.
+Please evaluate if it's spoof or genuine from the waveform.
+Please infer if this sample is spoof or real from the audio track.
+Kindly analyze if the recording is spoof or not from the clip.
+Please evaluate if it's spoof or not from the given recording.
+Kindly analyze if the utterance is spoof or genuine from the clip.
+Please determine if the voice is spoof or genuine from the recorded sample.
+Judge if the utterance is spoof or genuine from the audio sample.
+Please evaluate if the voice is spoof or genuine from the waveform.
+Please assess if this audio is spoof or genuine from this audio.
+Kindly analyze if the voice is spoof or genuine from the speech file.
+Please identify if this sample is spoof or real from the provided utterance.
+Please verify if the audio is spoof or real from this audio.
+Is it if it's spoof or real from the voice input.
+Please determine if it's spoof or genuine from the sample.
+Please decide if it's spoof or real from the speech file.
+Judge if this audio is spoof or genuine from this audio.
+Please identify if it's spoof or not from the sample.
+Kindly decide if it's spoof or not from the clip.
+Please check if this audio is spoof or genuine from the provided utterance.
+Tell me if it's a spoof attack or real from the audio track.
+Judge if the audio is spoof or real from the waveform.
+Please classify if the audio is spoofed from the voice segment.
+Is it if it's spoof or not from the recorded sample.
+Please check whether the sound is spoof or not from this audio.
+Please assess if the sample is spoofed from the audio sample.
+Please check if it's spoof or not from the provided utterance.
+Kindly analyze if the audio is spoof or real from the sample.
+Tell me if it's a spoof attack or real from this audio.
+Please infer whether the sound is spoof or not from the audio track.
+Check if the voice is spoof or genuine from the provided utterance.
+Please conclude if the voice is spoof or genuine from the given recording.
+Please assess if it's a spoof attack or real from the voice input.
+Please judge if this sample is spoof or real from the clip.
+Check if it's a spoof attack or real from the sample.
+Kindly decide if the audio is spoofed from the sample.
+Please assess if the sample is spoofed from the audio track.
+Judge if the audio is spoofed from the given recording.
+Judge if it's a spoof attack or real from the speech file.
+Kindly check if the sample is spoofed from this audio.
+Please verify if the audio is spoofed from the sample.
+Is it if the sample is spoofed from the given recording.
+Kindly check if this sample is spoof or real from the audio track.
+Judge if this audio is spoof or genuine from the input signal.
+Check if the speech is spoof or real from the audio sample.
+Please identify if it's spoof or not from the segment.
+Please conclude if it's spoof or genuine from the audio sample.
+Can you tell if the audio is spoofed from the recorded sample.
+Please classify whether the sound is spoof or not from this audio.
+Please check if the audio is spoofed from the audio track.
+Please decide if the voice is spoof or genuine from the provided utterance.
+Check if the speech is spoof or real from the recorded sample.
+Please check if it's spoof or not from the sample.
+Please check if it's spoof or not from the audio track.
+Please decide if the audio is spoofed from the voice segment.
+Please judge if the voice is spoof or genuine from this audio.
+Please assess whether the sound is spoof or not from the waveform.
+Please classify if the audio is spoof or real from the voice input.
+Please decide if it's spoof or genuine from this audio.
+Please classify if the audio is spoof or real from the segment.
+Please judge if it's spoof or not from the audio track.
+Judge if this audio is spoof or genuine from the segment.
+Kindly check if it's a spoof attack or real from the given recording.
+Please verify if this sample is spoof or real from the waveform.
+Please judge if this audio is spoof or genuine from the sample.
+Tell me if this sample is spoof or real from the sound file.
+Check if it's a spoof attack or real from the speech file.
+Please conclude whether the sound is spoof or not from the speech file.
+Is it if it's spoof or genuine from the waveform.
+Kindly check if this audio is spoof or genuine from the audio track.
+Please classify if the audio is spoof or real from the recorded sample.
+Please check whether the clip is spoofed or genuine from the sound file.
+Kindly check if the audio is spoofed from the voice input.
+Can you tell if the audio is spoof or real from the segment.
+Please classify if it's spoof or genuine from the voice input.
+Can you tell if the recording is spoof or not from the audio sample.
+Please analyze if the voice is spoof or genuine from the given recording.
+Please conclude whether the clip is spoofed or genuine from the audio track.
+Is it if it's spoof or not from the audio track.
+Tell me if the speech is spoof or real from the speech file.
+Judge if the voice is spoof or genuine from the waveform.
+Can you tell if this audio is spoof or genuine from the audio track.
+Is it if this sample is spoof or real from the waveform.
+Kindly decide whether the sound is spoof or not from the waveform.
+Kindly check if the audio is spoofed from the waveform.
+Is it if the recording is spoof or not from the speech file.
+Please classify if the audio is spoofed from the sample.
+Please judge if the recording is spoof or not from the provided utterance.
+Please assess if this sample is spoof or real from this audio.
+Please analyze if the audio is spoof or real from the sound file.
+Can you tell if the recording is spoof or not from the clip.
+Please classify whether the clip is spoofed or genuine from the recorded sample.
+Please infer whether the clip is spoofed or genuine from the voice input.
+Please identify if it's spoof or not from the clip.
+Check if it's spoof or genuine from the sample.
+Please decide if this sample is spoof or real from the recorded sample.
+Kindly check if it's spoof or real from the audio track.
+Please evaluate if it's spoof or real from the segment.
+Please verify if the speech is spoof or real from the voice input.
+Please judge if the recording is spoof or not from the input signal.
+Is it if the sample is spoofed from the provided utterance.
+Please determine if the utterance is spoof or genuine from the provided utterance.
+Please identify if this audio is spoof or genuine from the recorded sample.
+Kindly decide if it's spoof or not from the sound file.
+Kindly analyze if it's spoof or not from the given recording.
+Please assess if it's spoof or genuine from the clip.
+Please infer if it's spoof or real from the given recording.
+Kindly check if the speech is spoof or real from the clip.
+Please assess if it's spoof or real from the provided utterance.
+Please assess whether the sound is spoof or not from the clip.
+Please evaluate if the utterance is spoof or genuine from the sound file.
+Kindly decide if the audio is spoof or real from the recorded sample.
+Please infer if the audio is spoof or real from the sample.
+Please infer if this audio is spoof or genuine from the provided utterance.
+Please verify if the speech is spoof or real from the clip.
+Kindly analyze if the audio is spoofed from the speech file.
+Please check if it's a spoof attack or real from the waveform.
+Can you tell if it's a spoof attack or real from the audio sample.
+Check if this audio is spoof or genuine from the voice input.
+Please decide if the audio is spoof or real from the speech file.
+Check if the recording is spoof or not from the given recording.
+Please infer if it's spoof or genuine from the provided utterance.
+Please identify if the recording is spoof or not from the segment.
+Please decide if the sample is spoofed from the recorded sample.
+Please infer whether the clip is spoofed or genuine from the segment.
+Please determine if the sample is spoofed from the audio track.
+Please check if the audio is spoofed from the recorded sample.
+Judge whether the sound is spoof or not from the clip.
+Kindly check if this audio is spoof or genuine from this audio.
+Please judge if the sample is spoofed from the audio track.
+Please conclude if the speech is spoof or real from the waveform.
+Judge if this sample is spoof or real from the audio track.
+Please classify if it's spoof or genuine from the voice segment.
+Kindly analyze if the recording is spoof or not from the input signal.
+Kindly analyze if the sample is spoofed from the segment.
+Please infer if the audio is spoofed from the input signal.
+Can you tell whether the sound is spoof or not from the waveform.
+Please classify if this audio is spoof or genuine from the sample.
+Can you tell if the recording is spoof or not from the input signal.
+Please classify if the utterance is spoof or genuine from the audio sample.
+Please classify if it's spoof or real from the provided utterance.
+Please judge if it's spoof or genuine from the sample.
+Is it if it's spoof or real from the provided utterance.
+Please infer if the voice is spoof or genuine from the speech file.
+Judge if the speech is spoof or real from this audio.
+Please judge if this audio is spoof or genuine from the audio track.
+Tell me whether the sound is spoof or not from the voice input.
+Tell me if the audio is spoof or real from the recorded sample.
+Please infer if it's spoof or genuine from this audio.
+Please infer if it's a spoof attack or real from the voice input.
+Please determine if the audio is spoofed from this audio.
+Please conclude if it's spoof or real from the audio track.
+Judge if it's spoof or not from the given recording.
+Judge if the sample is spoofed from the voice segment.
+Kindly check if the voice is spoof or genuine from the audio sample.
+Please determine if it's a spoof attack or real from the recorded sample.
+Check if this sample is spoof or real from the speech file.
+Please assess if the utterance is spoof or genuine from the recorded sample.
+Is it if the speech is spoof or real from the clip.
+Please infer if the recording is spoof or not from the audio sample.
+Please decide if the utterance is spoof or genuine from the input signal.
+Kindly decide if the voice is spoof or genuine from the audio sample.
+Please conclude if it's spoof or not from the voice segment.
+Please classify if the audio is spoof or real from the voice segment.
+Kindly decide if this sample is spoof or real from the audio track.
+Kindly analyze if this sample is spoof or real from this audio.
+Can you tell if it's spoof or not from the waveform.
+Tell me if the utterance is spoof or genuine from the sound file.
+Please analyze if the utterance is spoof or genuine from the given recording.
+Check if this audio is spoof or genuine from the audio sample.
+Please check if the audio is spoofed from the sample.
+Please infer if this audio is spoof or genuine from the voice segment.
+Please evaluate if the voice is spoof or genuine from the recorded sample.
+Kindly decide if it's spoof or not from the segment.
+Please evaluate if the voice is spoof or genuine from the sound file.
+Please determine if this sample is spoof or real from the waveform.
+Please judge if this audio is spoof or genuine from the clip.
+Kindly decide if it's spoof or not from the given recording.
+Please identify if the audio is spoof or real from the provided utterance.
+Judge if this sample is spoof or real from the input signal.
+Please judge whether the clip is spoofed or genuine from the voice input.
+Please analyze if the audio is spoofed from the voice segment.
+Please evaluate whether the sound is spoof or not from the sample.
+Please verify if it's spoof or not from the input signal.
+Please identify if this audio is spoof or genuine from the sample.
+Please check whether the clip is spoofed or genuine from the voice input.
+Tell me whether the clip is spoofed or genuine from the waveform.
+Please determine if the voice is spoof or genuine from the waveform.
+Please determine if it's spoof or genuine from the given recording.
+Please determine if it's spoof or not from this audio.
+Kindly analyze if this audio is spoof or genuine from the voice input.
+Please check whether the sound is spoof or not from the recorded sample.
+Please identify if the sample is spoofed from the sound file.
+Please check if it's spoof or genuine from the audio sample.
+Please classify if it's spoof or genuine from the provided utterance.
+Tell me if the utterance is spoof or genuine from the provided utterance.
+Is it if it's spoof or genuine from this audio.
+Judge if the audio is spoof or real from the sample.
+Please evaluate if it's a spoof attack or real from the waveform.
+Kindly analyze if the recording is spoof or not from the waveform.
+Please identify if the utterance is spoof or genuine from the speech file.
+Please classify if this sample is spoof or real from the sample.
+Kindly check if this sample is spoof or real from the segment.
+Kindly check if the speech is spoof or real from the sound file.
+Kindly check if it's a spoof attack or real from the voice input.
+Please decide if the sample is spoofed from the clip.
+Please verify whether the clip is spoofed or genuine from the voice segment.
+Check whether the sound is spoof or not from the sample.
+Kindly analyze if the sample is spoofed from the audio sample.
+Kindly check if it's a spoof attack or real from the waveform.
+Please analyze if the speech is spoof or real from the voice segment.
+Please classify if the voice is spoof or genuine from the sound file.
+Tell me if the speech is spoof or real from the segment.
+Please classify if the recording is spoof or not from the provided utterance.
+Check if it's spoof or genuine from this audio.
+Is it whether the sound is spoof or not from the recorded sample.
+Please determine if the sample is spoofed from the audio sample.
+Judge if it's spoof or genuine from the recorded sample.
+Tell me if it's spoof or genuine from the sound file.
+Please classify if the recording is spoof or not from the recorded sample.
+Please evaluate if the speech is spoof or real from the provided utterance.
+Please analyze if it's spoof or genuine from this audio.
+Kindly decide if the sample is spoofed from the clip.
+Tell me if the sample is spoofed from the audio sample.
+Please conclude if the audio is spoof or real from the input signal.
+Please evaluate if it's spoof or genuine from the provided utterance.
+Please check if the audio is spoofed from the speech file.
+Is it if the utterance is spoof or genuine from the audio sample.
+Kindly analyze if the audio is spoof or real from the audio sample.
+Please decide if the utterance is spoof or genuine from the waveform.
+Please verify if the audio is spoof or real from the given recording.
+Check if it's a spoof attack or real from the waveform.
+Please identify if the audio is spoof or real from the given recording.
+Can you tell if this audio is spoof or genuine from the waveform.
+Kindly check if the voice is spoof or genuine from the voice input.
+Please evaluate whether the clip is spoofed or genuine from the input signal.
+Please determine if it's a spoof attack or real from the input signal.
+Please infer whether the sound is spoof or not from the recorded sample.
+Please evaluate if the utterance is spoof or genuine from the given recording.
+Please check if the speech is spoof or real from the clip.
+Please decide if it's a spoof attack or real from the input signal.
+Please identify if the voice is spoof or genuine from this audio.
+Please conclude whether the clip is spoofed or genuine from the voice segment.
+Please judge if it's spoof or genuine from the sound file.
+Check if the speech is spoof or real from this audio.
+Can you tell whether the clip is spoofed or genuine from the audio sample.
+Please analyze if it's spoof or genuine from the recorded sample.
+Please conclude if it's spoof or not from the audio sample.
+Please classify if the speech is spoof or real from the waveform.
+Please analyze if the sample is spoofed from the audio track.
+Please classify whether the sound is spoof or not from the clip.
+Please infer if it's spoof or genuine from the speech file.
+Please judge if it's a spoof attack or real from the segment.
+Kindly check if it's spoof or real from the voice input.
+Please judge if the recording is spoof or not from the recorded sample.
+Please identify if this audio is spoof or genuine from the waveform.
+Please check if it's a spoof attack or real from the input signal.
+Please conclude if the utterance is spoof or genuine from the given recording.
+Please decide if the recording is spoof or not from the sound file.
+Tell me if it's spoof or genuine from the voice segment.
+Can you tell whether the sound is spoof or not from the sample.
+Is it if the audio is spoof or real from this audio.
+Please check if it's a spoof attack or real from the voice segment.
+Please evaluate if the utterance is spoof or genuine from the sample.
+Tell me if this audio is spoof or genuine from the input signal.
+Please check if this sample is spoof or real from the recorded sample.
+Please determine if the speech is spoof or real from the waveform.
+Please verify if it's spoof or genuine from the given recording.
+Kindly check if the utterance is spoof or genuine from the provided utterance.
+Kindly check if it's spoof or genuine from the input signal.
+Please determine if the recording is spoof or not from the voice segment.
+Check if the utterance is spoof or genuine from the voice input.
+Kindly decide whether the clip is spoofed or genuine from the segment.
+Please decide if the voice is spoof or genuine from the input signal.
+Judge if the recording is spoof or not from the sound file.
+Please judge if it's a spoof attack or real from the provided utterance.
+Judge if the audio is spoofed from the sample.
+Check if the speech is spoof or real from the sound file.
+Please decide if it's spoof or genuine from the waveform.
+Please evaluate if it's spoof or not from the sample.
+Please identify if the utterance is spoof or genuine from the sample.
+Kindly check if the sample is spoofed from the sample.
+Please determine if this sample is spoof or real from the voice segment.
+Please determine if the audio is spoof or real from the waveform.
+Can you tell if the utterance is spoof or genuine from the provided utterance.
+Please judge if the sample is spoofed from the segment.
+Is it if the audio is spoofed from the voice input.
+Please check if the recording is spoof or not from the clip.
+Please infer if the audio is spoofed from the speech file.
+Please evaluate whether the clip is spoofed or genuine from the clip.
+Please infer if this audio is spoof or genuine from the sample.
+Please determine if the audio is spoofed from the voice segment.
+Check if it's spoof or real from the sound file.
+Tell me whether the sound is spoof or not from the provided utterance.
+Please assess if it's spoof or genuine from the audio sample.
+Please identify if the sample is spoofed from the audio track.
+Please verify if it's a spoof attack or real from the waveform.
+Please judge if it's spoof or real from this audio.
+Check if it's spoof or real from the voice input.
+Can you tell if the sample is spoofed from the segment.
+Please evaluate if the recording is spoof or not from the segment.
+Kindly check if the speech is spoof or real from the speech file.
+Please verify whether the sound is spoof or not from the sample.
+Please classify if this sample is spoof or real from the recorded sample.
+Can you tell if the speech is spoof or real from the input signal.
+Kindly check if the audio is spoof or real from the recorded sample.
+Judge if it's a spoof attack or real from the clip.
+Please analyze if it's spoof or real from the sample.
+Kindly check if it's a spoof attack or real from the speech file.
+Is it if this sample is spoof or real from the audio track.
+Is it if the utterance is spoof or genuine from the segment.
+Please conclude if the audio is spoofed from this audio.
+Please identify if the audio is spoofed from the sample.
+Please identify whether the sound is spoof or not from the recorded sample.
+Please decide if it's a spoof attack or real from the segment.
+Kindly analyze if the recording is spoof or not from the speech file.
+Judge if this sample is spoof or real from the sample.
+Please infer if the speech is spoof or real from the given recording.
+Please decide if this sample is spoof or real from this audio.
+Please evaluate if the speech is spoof or real from this audio.
+Please conclude if the speech is spoof or real from the clip.
+Tell me if the recording is spoof or not from the sample.
+Judge if the speech is spoof or real from the sound file.
+Can you tell if this sample is spoof or real from the audio track.
+Judge if the utterance is spoof or genuine from the voice input.
+Please classify if the recording is spoof or not from the input signal.
+Kindly check if the audio is spoofed from the given recording.
+Please classify if it's spoof or genuine from the input signal.
+Please analyze if this audio is spoof or genuine from the speech file.
+Check if the voice is spoof or genuine from the speech file.
+Please judge if it's spoof or real from the clip.
+Please verify whether the sound is spoof or not from the segment.
+Please infer if the sample is spoofed from this audio.
+Kindly check if this sample is spoof or real from the recorded sample.
+Please infer if the sample is spoofed from the audio sample.
+Please classify whether the clip is spoofed or genuine from the voice segment.
+Check if it's spoof or genuine from the waveform.
+Please determine if it's spoof or genuine from the sound file.
+Please verify if the utterance is spoof or genuine from the recorded sample.
+Can you tell if it's a spoof attack or real from the input signal.
+Please infer if the audio is spoof or real from the waveform.
+Judge if it's spoof or real from the speech file.
+Please determine whether the clip is spoofed or genuine from the clip.
+Please assess if it's spoof or real from this audio.
+Check if it's spoof or real from this audio.
+Please infer if it's spoof or real from the provided utterance.
+Kindly decide whether the sound is spoof or not from the recorded sample.
+Please check if the sample is spoofed from the input signal.
+Please identify whether the sound is spoof or not from the segment.
+Please assess if the utterance is spoof or genuine from the sample.
+Please determine if the voice is spoof or genuine from the clip.
+Judge if this sample is spoof or real from the clip.
+Please decide if it's spoof or genuine from the sample.
+Please judge if it's spoof or not from the input signal.
+Please evaluate if it's spoof or real from the sample.
+Please check whether the sound is spoof or not from the voice input.
+Kindly decide if the sample is spoofed from the input signal.
+Is it if it's spoof or real from this audio.
+Tell me if it's spoof or real from the provided utterance.
+Kindly analyze whether the clip is spoofed or genuine from the provided utterance.
+Can you tell if the utterance is spoof or genuine from the segment.
+Check if the speech is spoof or real from the sample.
+Kindly check if it's spoof or genuine from the audio track.
+Check if the utterance is spoof or genuine from the voice segment.
+Is it if the utterance is spoof or genuine from the sample.
+Please check if the voice is spoof or genuine from the audio track.
+Please determine if it's spoof or genuine from the segment.
+Tell me if the audio is spoof or real from the clip.
+Please classify if it's spoof or not from the clip.
+Can you tell if it's spoof or real from the voice segment.
+Please decide if the speech is spoof or real from the recorded sample.
+Please determine if it's spoof or not from the sample.
+Judge if it's a spoof attack or real from the voice input.
+Is it if this audio is spoof or genuine from the provided utterance.
+Please analyze if the speech is spoof or real from the given recording.
+Check if this audio is spoof or genuine from the provided utterance.
+Please evaluate if it's spoof or not from this audio.
+Tell me if the voice is spoof or genuine from the audio sample.
+Please identify if this audio is spoof or genuine from the segment.
+Tell me if the voice is spoof or genuine from the segment.
+Please infer if it's spoof or genuine from the waveform.
+Judge if it's spoof or real from the voice input.
+Can you tell if it's spoof or not from the audio track.
+Please determine if the recording is spoof or not from the speech file.
+Kindly analyze if the voice is spoof or genuine from the voice segment.
+Kindly check if the audio is spoofed from the speech file.
+Please classify if the recording is spoof or not from the segment.
+Please judge if it's a spoof attack or real from the audio sample.
+Can you tell if the voice is spoof or genuine from the recorded sample.
+Can you tell if the audio is spoof or real from the sound file.
+Please decide if it's spoof or genuine from the segment.
+Please determine if the speech is spoof or real from the segment.
+Is it if this sample is spoof or real from the voice input.
+Please evaluate if this sample is spoof or real from the input signal.
+Please check if it's a spoof attack or real from the voice input.
+Please evaluate whether the sound is spoof or not from the input signal.
+Please judge if the recording is spoof or not from the speech file.
+Kindly analyze if this audio is spoof or genuine from the speech file.
+Can you tell if the audio is spoofed from the waveform.
+Check if it's spoof or real from the provided utterance.
+Kindly analyze if the utterance is spoof or genuine from the given recording.
+Please determine if it's spoof or real from the input signal.
+Please infer if the voice is spoof or genuine from the audio track.
+Kindly analyze whether the sound is spoof or not from the voice input.
+Kindly analyze if it's spoof or real from the segment.
+Please infer if this audio is spoof or genuine from the voice input.
+Please infer if it's spoof or real from the voice input.
+Check if it's spoof or real from the audio sample.
+Kindly check if it's a spoof attack or real from the sound file.
+Please infer if it's spoof or real from the waveform.
+Can you tell if the audio is spoofed from the voice input.
+Please verify if it's spoof or not from this audio.
+Kindly check if the voice is spoof or genuine from the input signal.
+Please infer if it's spoof or not from the voice input.
+Please determine if it's a spoof attack or real from the sample.
+Can you tell if the voice is spoof or genuine from the audio sample.
+Please infer if the sample is spoofed from the speech file.
+Please infer if the recording is spoof or not from the audio track.
+Please evaluate if it's spoof or real from this audio.
+Please decide if it's a spoof attack or real from the sound file.
+Please determine if the recording is spoof or not from the clip.
+Please evaluate if the sample is spoofed from the audio track.
+Kindly decide if the voice is spoof or genuine from the sample.
+Please identify if it's spoof or real from the waveform.
+Is it whether the sound is spoof or not from the voice segment.
+Is it if the audio is spoof or real from the sample.
+Please check if the sample is spoofed from the voice input.
+Please decide if the audio is spoof or real from the audio track.
+Please evaluate whether the clip is spoofed or genuine from the voice input.
+Please verify if this audio is spoof or genuine from the audio sample.
+Please judge if this sample is spoof or real from the input signal.
+Tell me if the audio is spoofed from the clip.
+Please evaluate if the speech is spoof or real from the speech file.
+Kindly analyze if the audio is spoofed from the clip.
+Please assess if the recording is spoof or not from the sample.
+Check if the audio is spoof or real from the sound file.
+Please evaluate if the speech is spoof or real from the sample.
+Please analyze if it's spoof or not from the clip.
+Please decide if the audio is spoofed from the given recording.
+Please analyze if the audio is spoofed from the speech file.
+Please evaluate if the utterance is spoof or genuine from the voice segment.
+Kindly decide whether the sound is spoof or not from the sample.
+Can you tell if the voice is spoof or genuine from the audio track.
+Please evaluate if the utterance is spoof or genuine from the audio track.
+Kindly decide if it's spoof or genuine from the recorded sample.
+Please decide if this audio is spoof or genuine from the sample.
+Kindly analyze if the speech is spoof or real from the waveform.
+Can you tell if it's spoof or genuine from the waveform.
+Please infer if the recording is spoof or not from the recorded sample.
+Tell me if this sample is spoof or real from the audio sample.
+Please assess if this sample is spoof or real from the segment.
+Please verify if it's spoof or genuine from the voice segment.
+Please conclude if it's spoof or not from the segment.
+Please determine if it's spoof or real from the audio track.
+Please determine if this audio is spoof or genuine from the speech file.
+Is it if the voice is spoof or genuine from the provided utterance.
+Kindly analyze whether the sound is spoof or not from the audio sample.
+Kindly check if the audio is spoofed from the clip.
+Please judge if the recording is spoof or not from the sound file.
+Check if the speech is spoof or real from the voice segment.
+Please judge if it's spoof or genuine from the waveform.
+Please analyze if it's spoof or genuine from the given recording.
+Please infer if it's spoof or not from this audio.
+Please verify if it's a spoof attack or real from the voice input.
+Please infer if the sample is spoofed from the input signal.
+Please verify if the speech is spoof or real from the sound file.
+Please analyze if the sample is spoofed from the recorded sample.
+Please decide if this sample is spoof or real from the waveform.
+Judge if the voice is spoof or genuine from the segment.
+Is it if the speech is spoof or real from the sound file.
+Judge if it's spoof or not from the clip.
+Please check if it's spoof or genuine from the voice input.
+Please conclude if it's spoof or real from the clip.
+Is it if the audio is spoofed from the audio sample.
+Is it if the voice is spoof or genuine from the voice segment.
+Check if it's spoof or not from the recorded sample.
+Is it whether the clip is spoofed or genuine from the recorded sample.
+Please identify if it's spoof or real from the input signal.
+Please evaluate if the speech is spoof or real from the recorded sample.
+Please decide if this audio is spoof or genuine from the waveform.
+Check if the audio is spoofed from the speech file.
+Please verify if the sample is spoofed from this audio.
+Please identify if it's a spoof attack or real from the sound file.
+Please verify whether the clip is spoofed or genuine from the input signal.
+Please check if it's spoof or genuine from the provided utterance.
+Please conclude whether the clip is spoofed or genuine from the input signal.
+Please analyze if the recording is spoof or not from the audio sample.
+Kindly check if the sample is spoofed from the audio sample.
+Please determine if the sample is spoofed from the waveform.
+Please evaluate if the audio is spoofed from the audio track.
+Please identify whether the clip is spoofed or genuine from the voice input.
+Judge if the utterance is spoof or genuine from the sample.
+Check whether the clip is spoofed or genuine from this audio.
+Please judge whether the sound is spoof or not from the sample.
+Kindly check if the voice is spoof or genuine from the given recording.
+Please assess if the voice is spoof or genuine from the segment.
+Please decide if it's spoof or genuine from the clip.
+Please conclude if this sample is spoof or real from the sample.
+Please assess if the audio is spoofed from the speech file.
+Please verify if it's spoof or genuine from the sample.
+Please check if it's spoof or real from the audio track.
+Please decide if this audio is spoof or genuine from the input signal.
+Please judge if it's a spoof attack or real from the voice input.
+Please decide if the sample is spoofed from the given recording.
+Please assess if the audio is spoofed from the audio track.
+Tell me if it's spoof or genuine from the given recording.
+Please classify if this audio is spoof or genuine from this audio.
+Kindly decide if it's spoof or not from the recorded sample.
+Judge if the audio is spoofed from the input signal.
+Please infer if the voice is spoof or genuine from the clip.
+Please determine if the recording is spoof or not from the sample.
+Kindly decide if the speech is spoof or real from the input signal.
+Please verify if the sample is spoofed from the voice input.
+Please identify whether the sound is spoof or not from the speech file.
+Judge if the audio is spoofed from the voice input.
+Can you tell if it's spoof or real from the provided utterance.
+Judge if it's spoof or not from the input signal.
+Please infer if it's spoof or genuine from the recorded sample.
+Please judge if the recording is spoof or not from the sample.
+Kindly decide if this audio is spoof or genuine from the voice segment.
+Please conclude if the speech is spoof or real from the audio sample.
+Kindly check if the audio is spoof or real from the sample.
+Kindly decide whether the clip is spoofed or genuine from the voice segment.
+Tell me if it's spoof or genuine from the recorded sample.
+Please judge whether the sound is spoof or not from the speech file.
+Please decide if the audio is spoof or real from the waveform.
+Please check whether the sound is spoof or not from the audio track.
+Please verify if it's spoof or not from the sound file.
+Can you tell if the voice is spoof or genuine from the voice input.
+Please classify if the utterance is spoof or genuine from the given recording.
+Kindly decide if it's spoof or real from the waveform.
+Please identify if it's spoof or not from the given recording.
+Please decide whether the sound is spoof or not from the input signal.
+Please classify if the audio is spoofed from the recorded sample.
+Kindly decide if the recording is spoof or not from the voice segment.
+Judge whether the clip is spoofed or genuine from the audio track.
+Kindly decide if it's a spoof attack or real from the sound file.
+Kindly check if it's spoof or real from the waveform.
+Kindly analyze if the speech is spoof or real from the speech file.
+Please infer if this audio is spoof or genuine from the recorded sample.
+Kindly analyze whether the sound is spoof or not from the recorded sample.
+Please classify if it's spoof or not from the given recording.
+Kindly decide if the audio is spoofed from the provided utterance.
+Kindly decide if it's spoof or not from this audio.
+Please verify if the audio is spoofed from the speech file.
+Please identify if the utterance is spoof or genuine from this audio.
+Please verify if the voice is spoof or genuine from the segment.
+Please conclude if it's spoof or real from the audio sample.
+Please identify if the speech is spoof or real from the input signal.
+Judge if it's spoof or not from this audio.
+Please determine if it's spoof or not from the given recording.
+Check if the sample is spoofed from the speech file.
+Is it if it's spoof or genuine from the sample.
+Please identify if the audio is spoof or real from the input signal.
+Please identify if the audio is spoofed from the sound file.
+Please judge if the sample is spoofed from the recorded sample.
+Can you tell if the audio is spoofed from the given recording.
+Please classify if the utterance is spoof or genuine from the input signal.
+Please analyze if it's spoof or not from the waveform.
+Please evaluate if the sample is spoofed from the voice input.
+Can you tell if the utterance is spoof or genuine from the speech file.
+Tell me if it's spoof or not from the provided utterance.
+Please identify if it's spoof or real from the voice input.
+Check if this audio is spoof or genuine from the recorded sample.
+Please check if it's spoof or not from the clip.
+Please verify if the recording is spoof or not from the input signal.
+Kindly decide if the utterance is spoof or genuine from the segment.
+Please evaluate if it's spoof or not from the audio sample.
+Tell me if it's spoof or real from the voice input.
+Kindly check if the utterance is spoof or genuine from the audio track.
+Please evaluate if it's a spoof attack or real from the audio sample.
+Please evaluate if it's a spoof attack or real from the segment.
+Kindly decide if the audio is spoofed from the segment.
+Please check if the utterance is spoof or genuine from the waveform.
+Please analyze if this audio is spoof or genuine from the waveform.
+Please assess if the audio is spoofed from the recorded sample.
+Please check if the sample is spoofed from the speech file.
+Judge if it's spoof or genuine from the provided utterance.
+Please judge whether the sound is spoof or not from the voice input.
+Tell me if the recording is spoof or not from the input signal.
+Can you tell if it's spoof or genuine from the voice input.
+Kindly check if the voice is spoof or genuine from this audio.
+Is it if it's a spoof attack or real from the voice input.
+Please identify if it's a spoof attack or real from this audio.
+Please verify whether the clip is spoofed or genuine from the clip.
+Please check if it's spoof or real from the voice input.
+Please assess whether the clip is spoofed or genuine from the segment.
+Kindly analyze if the audio is spoof or real from this audio.
+Please identify if the utterance is spoof or genuine from the sound file.
+Kindly check if this sample is spoof or real from the input signal.
+Kindly analyze if it's spoof or genuine from the provided utterance.
+Please identify if it's a spoof attack or real from the clip.
+Please determine if the speech is spoof or real from the audio sample.
+Judge if the voice is spoof or genuine from the provided utterance.
+Can you tell if the audio is spoofed from the voice segment.
+Please determine if the utterance is spoof or genuine from the given recording.
+Judge if this audio is spoof or genuine from the waveform.
+Is it if the recording is spoof or not from the provided utterance.
+Please determine if the sample is spoofed from the voice input.
+Please decide whether the sound is spoof or not from the audio sample.
+Check if the sample is spoofed from the recorded sample.
+Is it if it's spoof or not from the input signal.
+Check whether the sound is spoof or not from the audio track.
+Please classify if the audio is spoofed from the clip.
+Please conclude if this sample is spoof or real from the given recording.
+Check if the audio is spoof or real from the clip.
+Please assess whether the sound is spoof or not from the audio track.
+Please check whether the clip is spoofed or genuine from the sample.
+Please evaluate if the sample is spoofed from the recorded sample.
+Please determine if the sample is spoofed from this audio.
+Please identify if it's spoof or not from this audio.
+Please decide if the utterance is spoof or genuine from the sample.
+Please verify whether the sound is spoof or not from the voice segment.
+Please infer if the speech is spoof or real from the speech file.
+Please analyze if this sample is spoof or real from the clip.
+Please classify if the audio is spoofed from the waveform.
+Please determine if the utterance is spoof or genuine from the sample.
+Please determine if the utterance is spoof or genuine from the sound file.
+Please evaluate if the sample is spoofed from the voice segment.
+Please determine if it's spoof or not from the provided utterance.
+Please assess whether the sound is spoof or not from this audio.
+Judge if the utterance is spoof or genuine from the segment.
+Kindly analyze if the speech is spoof or real from the segment.
+Please infer whether the clip is spoofed or genuine from the audio track.
+Please determine if the audio is spoof or real from the recorded sample.
+Kindly decide whether the sound is spoof or not from the speech file.
+Kindly decide if the audio is spoofed from the sound file.
+Please conclude if the sample is spoofed from the audio track.
+Please assess if this sample is spoof or real from the speech file.
+Please identify whether the sound is spoof or not from the provided utterance.
+Please analyze whether the clip is spoofed or genuine from the audio sample.
+Please verify if the utterance is spoof or genuine from the audio track.
+Judge whether the clip is spoofed or genuine from the audio sample.
+Please classify if the voice is spoof or genuine from the voice input.
+Please verify if this audio is spoof or genuine from the waveform.
+Is it if the sample is spoofed from the sound file.
+Kindly decide if the voice is spoof or genuine from the waveform.
+Please identify if this audio is spoof or genuine from the voice segment.
+Please verify whether the sound is spoof or not from the audio track.
+Please infer if the utterance is spoof or genuine from the voice segment.
+Please analyze if the utterance is spoof or genuine from the clip.
+Tell me if the audio is spoof or real from the audio track.
+Is it if the audio is spoof or real from the voice segment.
+Please assess if the audio is spoofed from the input signal.
+Please verify if it's spoof or not from the speech file.
+Tell me if the utterance is spoof or genuine from the sample.
+Kindly analyze if this audio is spoof or genuine from the sample.
+Please identify if it's spoof or not from the voice segment.
+Please verify if the sample is spoofed from the audio sample.
+Kindly decide if the speech is spoof or real from the sample.
+Judge if it's spoof or not from the sound file.
+Check if the speech is spoof or real from the waveform.
+Tell me if the audio is spoofed from the audio track.
+Please identify if the audio is spoof or real from the audio sample.
+Check if the voice is spoof or genuine from this audio.
+Kindly check if it's spoof or not from this audio.
+Kindly check if the voice is spoof or genuine from the speech file.
+Can you tell if the sample is spoofed from the provided utterance.
+Please evaluate if the audio is spoof or real from the sound file.
+Please conclude if the audio is spoof or real from the sample.
+Please identify if it's a spoof attack or real from the sample.
+Tell me whether the sound is spoof or not from the speech file.
+Judge if it's a spoof attack or real from the segment.
+Please infer if the utterance is spoof or genuine from the input signal.
+Please analyze if the voice is spoof or genuine from the sound file.
+Please determine if this audio is spoof or genuine from the recorded sample.
+Please classify whether the sound is spoof or not from the voice input.
+Please judge whether the clip is spoofed or genuine from this audio.
+Please infer if the audio is spoofed from the waveform.
+Please identify if this sample is spoof or real from the recorded sample.
+Please infer if the voice is spoof or genuine from the voice input.
+Kindly analyze if it's spoof or not from the provided utterance.
+Kindly analyze if it's spoof or real from the given recording.
+Can you tell if it's spoof or real from the given recording.
+Please assess if it's spoof or genuine from the audio track.
+Tell me if the voice is spoof or genuine from the speech file.
+Please evaluate whether the sound is spoof or not from the audio track.
+Please check if this sample is spoof or real from the audio sample.
+Please identify if the audio is spoofed from this audio.
+Tell me if the audio is spoof or real from the input signal.
+Check if the voice is spoof or genuine from the voice input.
+Please evaluate if the speech is spoof or real from the voice input.

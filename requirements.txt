@@ -1,0 +1,19 @@
+torch>=2.1
+torchaudio
+transformers>=4.45
+peft>=0.12
+bitsandbytes
+wandb
+numpy
+scipy
+scikit-learn
+PyYAML
+matplotlib
+tqdm
+evaluate
+huggingface_hub
+python-dotenv
+omegaconf
+soundfile
+
+# System dependency (not pip-installable): ffmpeg must be on PATH for codec augmentation.
