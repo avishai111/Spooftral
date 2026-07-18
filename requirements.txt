@@ -15,5 +15,6 @@ huggingface_hub
 python-dotenv
 omegaconf
 soundfile
+pacmap>=0.7  # only used by calc_embeddings_projector_codes/plot_pacmap_embeddings.py
 
 # System dependency (not pip-installable): ffmpeg must be on PATH for codec augmentation.

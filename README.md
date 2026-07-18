@@ -22,6 +22,7 @@ This is the reference implementation for the paper *"Spooftral: Can Voxtral Audi
 - [Checkpoint Format](#checkpoint-format)
 - [Training Scripts](#training-scripts)
 - [Inference Scripts](#inference-scripts)
+- [Embedding & Projector Analysis](#embedding--projector-analysis)
 - [Configuration](#configuration-configsyaml)
 - [Key Source Files](#key-source-files)
 - [How to Run](#how-to-run)
@@ -280,6 +281,22 @@ Standalone evaluation entry-points for a saved checkpoint (no training loop):
 
 Common behavior: load checkpoint via `load_checkpoint_into_model` (`strict=True`), rebuild the wrapper with matching `projector_peft` / `finetune_mode` / `lora_rank` values, and emit per-utterance scores + EER.
 
+## Embedding & Projector Analysis
+
+[`calc_embeddings_projector_codes/`](calc_embeddings_projector_codes/) is a standalone representation-analysis pipeline, separate from the CAG / classification-head training loops above. It extracts frozen Voxtral embeddings, packages them into dataset-level NPZ bundles, and trains/evaluates lightweight linear classifiers directly on top of those embeddings — used for the linear-probing numbers in [Results](#results) (LLM-decoder vs. audio-adapter embeddings). See [`calc_embeddings_projector_codes/README.md`](calc_embeddings_projector_codes/README.md) for full details; these scripts are configured by editing constants at the top of each file rather than via the `configs/*.yaml` system used elsewhere in this repo.
+
+Pipeline (each stage optional after the first two):
+
+| Script | Purpose |
+|---|---|
+| [`calc_embeddings.py`](calc_embeddings_projector_codes/calc_embeddings.py) | Extracts per-file embeddings from a selected Voxtral stage (`audio_projector`, `llama`, or `lm_head`) and writes a metadata CSV |
+| [`aggregate_embeddings_to_npz.py`](calc_embeddings_projector_codes/aggregate_embeddings_to_npz.py) | Merges per-file embeddings + metadata CSV into a single `total_{train,dev,eval}_embeddings.npz` bundle |
+| [`verify_npz_embeddings.py`](calc_embeddings_projector_codes/verify_npz_embeddings.py) | Sanity-checks an NPZ bundle (shape, NaN/Inf, metadata-length consistency) before training |
+| [`training_on_embeds_one_net_5.py`](calc_embeddings_projector_codes/training_on_embeds_one_net_5.py) | Trains a linear PyTorch Lightning classifier on the frozen embeddings, tracking EER |
+| [`score_embeddings_pipeline.py`](calc_embeddings_projector_codes/score_embeddings_pipeline.py) | Scores saved checkpoints across train/dev/eval splits, with optional bootstrap confidence intervals |
+| [`compare_embeddings.py`](calc_embeddings_projector_codes/compare_embeddings.py) | Compares two embedding spaces via cosine similarity, L2 distance, CKA, and pairwise-distance correlation |
+| [`plot_pacmap_embeddings.py`](calc_embeddings_projector_codes/plot_pacmap_embeddings.py) | Produces the paper's Figure 2: PaCMAP 2D projections of audio-adapter vs. LLM-decoder embeddings across ASVspoof5 train/dev/eval, fit on train and transformed onto dev/eval |
+
 ## Configuration (`configs/*.yaml`)
 
 All hyperparameters are YAML-driven. Nothing is hardcoded in training scripts. Key fields in `configs/hyperparameters_05_no_margin.yaml` (primary config):
@@ -395,6 +412,9 @@ One YAML file per experiment variant:
 
 **`inference_checkpoint*.py`** (root and `more_inference_scripts/`)
 Standalone inference for trained checkpoints (multiple dataset variants).
+
+**[`calc_embeddings_projector_codes/`](calc_embeddings_projector_codes/)**
+Standalone embedding-extraction and linear-probing pipeline (see [Embedding & Projector Analysis](#embedding--projector-analysis)); configured by editing constants in each script rather than YAML.
 
 ## How to Run
 

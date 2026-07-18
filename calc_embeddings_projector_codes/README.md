@@ -13,6 +13,7 @@ Typical use cases:
 - train a simple linear classifier on top of frozen embeddings
 - score saved projector checkpoints on train/dev/eval splits
 - compare two embedding spaces directly
+- visualize embeddings in 2D with PaCMAP
 - sanity-check generated NPZ bundles before training
 
 ## Main workflow
@@ -36,6 +37,9 @@ The usual pipeline is:
 
 6. Optionally run `compare_embeddings.py`
    Compare two embedding sets with similarity and distance metrics.
+
+7. Optionally run `plot_pacmap_embeddings.py`
+   Project audio-adapter and LLM-decoder embeddings to 2D with PaCMAP (fit on train, applied to dev/eval) and plot bonafide vs. spoof separation per split.
 
 ## Files in this folder
 
@@ -200,6 +204,27 @@ Important parameters to edit:
 - `OUTPUT_FILE`
 - `USE_FLOAT16`
 
+### `plot_pacmap_embeddings.py`
+
+Projects audio-adapter and LLM-decoder embeddings to 2D with [PaCMAP](https://github.com/YingfanWang/PaCMAP) and plots bonafide/spoof separation per split.
+
+What it does:
+
+- loads the `total_{train,dev,eval}_embeddings.npz` bundles for both the `audio_projector` and `llama` stages
+- fits PaCMAP on the training-set embeddings only, then transforms dev/eval onto that same fitted basis (out-of-sample transform)
+- plots a 3×2 grid (train/dev/eval rows × audio-adapter/LLM columns), colored by bonafide vs. spoof
+
+Important parameters to edit:
+
+- `AUDIO_ADAPTER_NPZ`
+- `LLM_NPZ`
+- `OUTPUT_FILE`
+- `RANDOM_STATE`
+- `N_NEIGHBORS`
+- `MAX_POINTS_PER_SPLIT`
+
+Requires the `pacmap` package (`pip install pacmap>=0.7`).
+
 ### `README.md`
 
 This file.
@@ -242,6 +267,12 @@ python score_embeddings_pipeline.py
 python compare_embeddings.py
 ```
 
+### 7) Plot PaCMAP projections
+
+```bash
+python plot_pacmap_embeddings.py
+```
+
 ## Expected dataset format
 
 The downstream scripts expect dataset-level NPZ bundles such as:
@@ -274,3 +305,4 @@ Depending on the stage of the pipeline, this folder can produce:
 - saved score snapshots
 - per-split scoring outputs
 - embedding comparison reports
+- PaCMAP 2D-projection plots
