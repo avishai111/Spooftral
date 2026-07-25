@@ -524,16 +524,10 @@ class ASVspoofIndexDataset(Dataset):
 
 
         if self.path_to_protocol is not None:
-            # Protocol delimiter depends on the dataset: ASVspoof5 ships tab-separated
-            # protocols (invariant #6 — codec/attack fields may contain spaces, so
-            # never use split() there), while the official ASVspoof2019/2021 and
-            # In_The_Wild protocols are whitespace-separated (matching
-            # load_protocol_ASVspoof2019/2021 in helper_function.py).
+            # All protocol files (ASVspoof5, ASVspoof2019/2021, In_The_Wild) are
+            # whitespace-separated despite the .tsv extension on ASVspoof5's files
             with open(self.path_to_protocol, "r") as f:
-                if self.dataset_type == "asvspoof5":
-                    audio_info = [info.strip().split("\t") for info in f.readlines()]
-                else:
-                    audio_info = [info.strip().split() for info in f.readlines()]
+                audio_info = [info.strip().split() for info in f.readlines()]
             self.audio_info = audio_info
         else:
             # Gracefully handle missing protocol by using an empty dataset

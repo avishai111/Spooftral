@@ -140,12 +140,12 @@ def load_protocol_ASVspoof5(protocol_path, audio_dir, reasoning):
     entries = []
     with open(protocol_path, "r", encoding="utf-8") as f:
         for line in f:
-            fields = line.strip().split("\t")
-            if len(fields) < 11:
+            fields = line.strip().split()
+            if len(fields) < (11 if reasoning else 9):
                 continue  # skip malformed lines
 
-            # ASVspoof5 protocol is tab-separated; only select columns are used by position:
-            # 0=speaker_id, 1=file_id, 2=gender, 6=codec, 7=attack_type, 8=label, 10=reasoning text.
+            # ASVspoof5 protocol is whitespace-separated (despite the .tsv extension);
+            # only select columns are used by position:
             speaker_id = fields[0]
             file_id = fields[1]
             gender = fields[2]

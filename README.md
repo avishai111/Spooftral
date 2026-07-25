@@ -397,7 +397,7 @@ Checkpoint save/load with full resume state: weights, optimizer, scheduler, scal
 `for_causal_lm_loss()` — token-level NLL with configurable reduction. Upcasts to float32 internally for numerical stability, deletes the fp32 tensor immediately after `.view()` to minimise peak VRAM.
 
 **[`utils/dataset.py`](utils/dataset.py)**
-ASVspoof dataset loaders (5 / 2021 LA / 2021 DF / 2019 LA) with on-the-fly augmentation. ASVspoof5 protocol is parsed with `split("\t")` (tab-separated).
+ASVspoof dataset loaders (5 / 2021 LA / 2021 DF / 2019 LA) with on-the-fly augmentation. All protocols, including ASVspoof5's `.tsv` files, are whitespace-separated and parsed with `split()`.
 
 **[`utils/augmentation.py`](utils/augmentation.py) / [`utils/codec.py`](utils/codec.py) / [`utils/RawBoost.py`](utils/RawBoost.py) / [`utils/data_utils_rawboost.py`](utils/data_utils_rawboost.py)**
 Augmentation stack: `codec.py` (mp3/aac/opus/flac/wav/g722/amr sims), `augmentation.py` (add-noise, time/freq mask, gain, time-shift), `RawBoost.py` + `data_utils_rawboost.py` (RawBoost LnL/ISD/SSI variants).
@@ -474,7 +474,7 @@ Both are saved in every checkpoint and fully restored on resume. Both are logged
 
 | Dataset | Notes |
 |---|---|
-| **ASVspoof5** | Track 1 (closed condition). Protocol files: `ASVspoof5.train.tsv`, `ASVspoof5.dev.track_1.tsv`, `ASVspoof5.eval.track_1.tsv`. Audio format: FLAC. Protocol is TAB-separated and must be parsed with `split("\t")` — using whitespace split collapses multi-space fields. |
+| **ASVspoof5** | Track 1 (closed condition). Protocol files: `ASVspoof5.train.tsv`, `ASVspoof5.dev.track_1.tsv`, `ASVspoof5.eval.track_1.tsv`. Audio format: FLAC. Despite the `.tsv` extension.|
 | **ASVspoof2021 LA** | Logical Access evaluation track. Protocol: `trial_metadata.txt` with key fields: `file_id`, `label`, `system_id`. |
 | **ASVspoof2021 DF** | Deepfake track. Larger, more diverse spoofing systems than LA. Used by the `*_DF` training scripts and `*_DF` YAMLs. |
 | **ASVspoof2019 LA** | Used for cross-dataset evaluation and the classification-head variant. |
