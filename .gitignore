@@ -310,3 +310,5 @@ voxtral_clean-generation-asvspoof5-aug-bfloat16-2-constant-classification_as_gen
 node_modules/
 *.vsix
 *.csv
+
+plots_and_checks/
