@@ -311,4 +311,4 @@ node_modules/
 *.vsix
 *.csv
 
-plots_and_checks/
+/plots_and_checks/
