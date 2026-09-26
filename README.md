@@ -561,9 +561,11 @@ See [`requirements.txt`](requirements.txt) (`pip install -r requirements.txt`). 
 
 ## License
 
-Licensed under the [Apache License 2.0](LICENSE).
+The original Spooftral source code is licensed under the [Apache License 2.0](LICENSE). Incorporated third-party code retains its original copyright notices and license terms; see [Third-Party Notices](THIRD_PARTY_NOTICES.md) for details. The associated IEEE publication, including its text, figures, and tables, is subject to the applicable IEEE copyright terms and is not licensed under Apache 2.0.
 
-License: Unless otherwise noted, the source code in this repository is licensed under the Apache License 2.0. The associated IEEE publication, including its text, figures, and tables, is subject to the applicable IEEE copyright terms and is not licensed under Apache 2.0.
+### Third-Party Software
+
+This repository includes adapted code from [RawBoost](https://github.com/TakHemlata/RawBoost-antispoofing) and [ConfidenceIntervals](https://github.com/luferrer/ConfidenceIntervals). Their original MIT license texts, copyright notices, and local file locations are recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Spooftral also uses Mistral AI's Apache 2.0 licensed Voxtral base model, documented there.
 
 ## Contact
 

@@ -45,7 +45,6 @@ Dependencies
 - torchaudio
 - numpy
 
-Author: Voxtral Team
 """
 
 from __future__ import annotations

@@ -1,3 +1,6 @@
+# Derived from or adapted from https://github.com/TakHemlata/RawBoost-antispoofing
+# Copyright (c) 2021 Hemlata. Original code licensed under the MIT License.
+# Modified for Spooftral; full original license text: ../THIRD_PARTY_NOTICES.md.
 """
 utils/data_utils_rawboost.py
 ============================
@@ -95,6 +98,5 @@ def process_Rawboost_feature(feature, sr,args,algo):
         feature=feature
     
     return feature
-
 
 

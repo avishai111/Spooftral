@@ -1,3 +1,6 @@
+# Derived from or adapted from https://github.com/luferrer/ConfidenceIntervals
+# Copyright (c) 2023 Luciana Ferrer. Original code licensed under the MIT License.
+# Modified for Spooftral; full original license text: ../THIRD_PARTY_NOTICES.md.
 import numpy as np
 from sklearn.utils import resample
 from sklearn.metrics import accuracy_score

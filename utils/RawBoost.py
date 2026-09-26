@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Derived from or adapted from https://github.com/TakHemlata/RawBoost-antispoofing
+# Copyright (c) 2021 Hemlata. Original code licensed under the MIT License.
 """
 utils/RawBoost.py
 =================
