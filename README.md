@@ -1,316 +1,290 @@
 # Spooftral: Can Voxtral Audio-Language Model Detect Speech Spoofing?
 
-[![arXiv](https://img.shields.io/badge/arXiv-2505.15911-b31b1b.svg)](https://doi.org/10.48550/arXiv.2609.28713)
-
+[![arXiv](https://img.shields.io/badge/arXiv-2609.28713-b31b1b.svg)](https://doi.org/10.48550/arXiv.2609.28713)
 [![DOI](https://zenodo.org/badge/1305091860.svg)](https://doi.org/10.5281/zenodo.23442861)
 
-This project fine-tunes [Voxtral](https://huggingface.co/mistralai/Voxtral-Mini-3B-2507) (`mistralai/Voxtral-Mini-3B-2507`, built on the Ministral-3B language model) for automatic speaker verification (ASV) spoofing detection using a **Classification-as-Generation (CAG)** paradigm. the system scores the log-probability of each class label string (e.g. `"bonafide"` / `"spoof"`) conditioned on the audio input, then selects the label with the higher score. This lets the full generative LLM be the discriminator with no architectural changes and no extra parameters.
+Spooftral adapts [Voxtral](https://huggingface.co/mistralai/Voxtral-Mini-3B-2507) (`mistralai/Voxtral-Mini-3B-2507`), an audio-language model built on Ministral-3B, for speech spoofing detection. Instead of adding a conventional classification head, we use **Classification-as-Generation (CAG)**: given an audio recording, the model scores candidate labels such as `"bonafide"` and `"spoof"` by their conditional log-probabilities and chooses the higher-scoring label.
 
-Label texts are fully dynamic and YAML-driven — nothing is hardcoded. The golden prompt, class names, and all loss hyperparameters come from config.
+The approach uses the existing language-model output to make predictions. It does not require a separate classification head, although fine-tuning with DoRA introduces trainable adapter parameters. Prompts, class labels, and training settings are configured through YAML files.
 
-This is the reference implementation for the paper _"Spooftral: Can Voxtral Audio-Language Model Detect Speech Spoofing?"_. The paper's **Spooftral** model corresponds to the CAG paradigm below (full ALM adapted with DoRA), and **Spooftral-Enc** corresponds to the Audio-Adapter + MLP classification-head paradigm (LM excluded). Using lightweight DoRA adaptation alone — no model fusion, no additional spoofing-specific training data — Spooftral reaches an EER of **4.25%** on the ASVspoof5 evaluation set. See [Results](#results) below for the results.
+This repository accompanies our paper, *“Spooftral: Can Voxtral Audio-Language Model Detect Speech Spoofing?”* We study two approaches:
 
-- **Primary evaluation metric:** Equal Error Rate (EER, lower = better)
-- **Datasets:** ASVspoof5 (primary), ASVspoof2021 LA/DF, ASVspoof2019 LA
+1. **Spooftral:** CAG with DoRA adaptation of the audio-language model.
+2. **Spooftral-Enc:** an audio-encoder-based model with a small MLP classification head, without running the language-model decoder.
 
-The trained models are available for download on [Google Drive](https://drive.google.com/drive/folders/1MrBPnjTPT7poTqeRx954piV-oY76brQS?usp=sharing).
+With attention DoRA and margin regularisation, Spooftral achieves **4.25% EER** on the ASVspoof5 evaluation set, without model fusion or additional spoofing-specific training data. The complete paper results are listed [below](#results).
+
+**Primary metric:** Equal Error Rate (EER; lower is better).  
+**Datasets:** ASVspoof5 (primary), ASVspoof2021 LA/DF, and ASVspoof2019 LA.
+
+Trained models are available on [Google Drive](https://drive.google.com/drive/folders/1MrBPnjTPT7poTqeRx954piV-oY76brQS?usp=sharing).
 
 ## Contents
 
 - [Architecture](#architecture)
 - [Two Training Paradigms](#two-training-paradigms)
-- [Classification-as-Generation (CAG) Detail](#classification-as-generation-cag-detail)
-- [Fine-Tuning Strategy](#fine-tuning-strategy)
-- [Projector PEFT](#projector-peft-catastrophic-forgetting-mitigation)
+- [Classification-as-Generation (CAG)](#classification-as-generation-cag)
+- [Fine-Tuning](#fine-tuning)
+- [Projector PEFT](#projector-peft)
 - [Loss Functions](#loss-functions)
-- [Forward Pass Optimisation](#forward-pass-optimisation-batched-2b-forward)
-- [Resume Behaviour](#resume-behaviour)
-- [Checkpoint Format](#checkpoint-format)
+- [Batched CAG Forward Pass](#batched-cag-forward-pass)
+- [Checkpoints and Resume](#checkpoints-and-resume)
 - [Training Scripts](#training-scripts)
 - [Inference Scripts](#inference-scripts)
-- [Embedding & Projector Analysis](#embedding--projector-analysis)
-- [Configuration](#configuration-configsyaml)
+- [Embedding and Projector Analysis](#embedding-and-projector-analysis)
+- [Configuration](#configuration)
 - [Key Source Files](#key-source-files)
 - [How to Run](#how-to-run)
 - [Evaluation](#evaluation)
 - [Datasets](#datasets)
 - [Results](#results)
 - [Dependencies](#dependencies)
-- [Notes](#notes)
+- [License](#license)
+- [Contact](#contact)
 
 ## Architecture
 
-Voxtral is a multimodal speech-language model composed of three components:
+Voxtral has three components that matter for this project.
 
-**1. Audio Encoder**
-Voxtral's built-in Whisper-based audio tower. The encoder can be frozen, fully fine-tuned, or adapted using LoRA/DoRA independently of the LM (see `trainable_audio_encoder`).
+### 1. Audio encoder
 
-**2. Multi-Modal Projector**
-Linear bridge (`linear_1 → GELU → linear_2`) that maps audio-encoder hidden states into the LM hidden size (3072 for Ministral-3B). It can be:
+Voxtral uses a Whisper-based audio encoder. Depending on the experiment, we freeze it, fine-tune it, or adapt it using LoRA/DoRA. The `trainable_audio_encoder` setting controls this independently of the language model.
 
-- trained end-to-end (default, `projector_peft=False`), or
-- PEFT-wrapped: base linear weights frozen, LoRA/DoRA adapters only (`projector_peft=True`; see [Projector PEFT](#projector-peft-catastrophic-forgetting-mitigation))
+### 2. Multimodal projector
 
-When `k_downsample != 4` the built-in projector is replaced by the custom `VoxtralModalProjector_Encoder_Audio` sized to `k_downsample*1280 → 3072`.
-
-**3. Language Model (Ministral-3B)**
-Autoregressive LLM receiving audio embeddings prepended to the token sequence. Adapted via LoRA / DoRA / AdaLoRA / full FT / frozen — chosen via `finetune_mode`.
-
-During CAG inference/training the model receives:
+The projector connects the audio encoder to the language model:
 
 ```text
-[audio_embeddings | instruction_tokens | label_tokens]
+linear_1 → GELU → linear_2
 ```
 
-and the log-probability of the label tokens is used as the class score.
+It maps audio features to the language-model hidden size (3072 for Ministral-3B). By default, the projector is trained end to end (`projector_peft: False`). Setting `projector_peft: True` freezes its base linear weights and trains LoRA/DoRA adapters instead; see [Projector PEFT](#projector-peft).
+
+For `k_downsample != 4`, the built-in projector is replaced by `VoxtralModalProjector_Encoder_Audio`, which maps `k_downsample * 1280` features to 3072 dimensions.
+
+### 3. Language model
+
+The Ministral-3B decoder receives the audio embeddings together with the text tokens. It can be fine-tuned with LoRA, DoRA, AdaLoRA, or full fine-tuning, or kept frozen, according to `finetune_mode`.
+
+The prediction is based on the log-probability assigned to the label tokens.
 
 ## Two Training Paradigms
 
-This repository supports two complementary architectures:
+### A. Classification-as-Generation (Spooftral)
 
-### A. Classification-as-Generation (CAG) — primary paradigm, paper name **Spooftral**
+The primary approach uses the Voxtral decoder itself as the classifier. There is no additional classification head: the model compares the conditional log-probabilities of candidate label strings.
 
-No classification head. The full Voxtral stack scores logprobs of label strings (`"bonafide"` / `"spoof"`). Built by `VoxtralStageWrapper_classification`.
-Training scripts: [`training_voxtral_generation_tokens05_21.py`](training_voxtral_generation_tokens05_21.py) (root) and [`more_training_voxtral_scripts/training_voxtral_generation_tokens*.py`](more_training_voxtral_scripts/)
+The implementation is `VoxtralStageWrapper_classification`. Training entry points include [`training_voxtral_generation_tokens05_21.py`](training_voxtral_generation_tokens05_21.py) and the scripts in [`more_training_voxtral_scripts/`](more_training_voxtral_scripts/).
 
-With DoRA applied to all attention projection layers (rank 32, α=64 on ASVspoof5), Spooftral trains only **~55.1M parameters — 1.17% of the 4.71B total**.
+For the ASVspoof5 attention-DoRA configuration (rank 32, α = 64), approximately **55.1 million parameters (1.17% of 4.71 billion)** are trainable.
 
-### B. Audio-Adapter + MLP Classification Head — paper name **Spooftral-Enc**
+### B. Audio-Adapter + MLP Head (Spooftral-Enc)
 
-Lightweight alternative that bypasses the LM entirely:
-
-```text
-audio encoder → multi_modal_projector → pool → MLP head → logits
-```
-
-The LM is frozen (and optionally offloaded to CPU via `drop_language_model`) so all compute goes into the encoder + adapter + head. Built by `AudioAdapterHeadClassifier` in [`utils/build_model_for_classification_head.py`](utils/build_model_for_classification_head.py). The classification head is a linear projection (3072 → 256) → GELU → dropout (p=0.1) → linear (256 → 2).
-Training scripts: [`training_audio_adapter_head_5_margin.py`](training_audio_adapter_head_5_margin.py) (root) and [`more_training_audio_adapter_scripts/training_audio_adapter_head*.py`](more_training_audio_adapter_scripts/)
-YAMLs: `configs/hyperparameters_*_classification_head.yaml`
-
-With DoRA applied to the audio encoder's attention layers, Spooftral-Enc trains only **~37.4M parameters — 5.55% of its 674M total**.
-
-Both paradigms share the same protocol parsers, augmentation pipeline, EER computation, checkpoint format, and resume logic. The choice is dataset-agnostic — every supported dataset works with either.
-
-There is also [`scripts/train.py`](scripts/train.py), a unified entry point that takes any CAG config via `--config` instead of hardcoding it, as an alternative to launching the per-experiment scripts above directly.
-
-## Classification-as-Generation (CAG) Detail
-
-For each audio sample, one candidate sequence per class label is built:
+This alternative uses the audio side of Voxtral and skips the decoder:
 
 ```text
-candidate_0: [prompt_tokens | label_texts[0]]   (e.g. "bonafide")
-candidate_1: [prompt_tokens | label_texts[1]]   (e.g. "spoof")
+audio encoder → multi_modal_projector → pooling → MLP head → logits
 ```
 
-The class texts are read exclusively from the YAML field `generation_classification.label_texts` — never hardcoded.
-
-Each candidate is scored by `score_label_logprob()`, which:
-
-- Runs a single LM forward pass (no teacher-forcing labels passed to the model, avoiding HuggingFace's internal fp32 upcast inside `ForCausalLMLoss`)
-- Extracts raw logits, then releases the full output object from VRAM before any NLL computation
-- Releases the logits tensor itself before calling `for_causal_lm_loss` so that the fp32 upcast inside that function does not create a double-live copy (the previous design held fp16 original + fp32 copy simultaneously, causing a 3× VRAM spike on the largest tensor in the forward pass)
-- Computes NLL only over the label-token span using a shifted boolean mask (shifted because `logit[t]` predicts `token[t+1]`)
-- Optionally length-normalises by dividing total NLL by the label token count, which is required to eliminate bias when label strings have different lengths
-
-**Decision rule:**
+The MLP head is:
 
 ```text
-softmax([logP(label_0 | audio), logP(label_1 | audio)])
-prediction = argmax of above
+Linear(3072, 256) → GELU → Dropout(0.1) → Linear(256, 2)
 ```
 
-This is equivalent to a generative classifier without any extra parameters.
+The language model is not used for predictions and can optionally be offloaded to CPU via `drop_language_model`. The implementation is `AudioAdapterHeadClassifier` in [`utils/build_model_for_classification_head.py`](utils/build_model_for_classification_head.py).
 
-## Fine-Tuning Strategy
+The two approaches use the same dataset and evaluation infrastructure, with separate model wrappers and training loops. They both support the datasets listed in this README. For CAG experiments, [`scripts/train.py`](scripts/train.py) also provides a unified entry point that accepts `--config`.
 
-Parameter-efficient fine-tuning via **DoRA** (Weight-Decomposed Low-Rank Adaptation).
+## Classification-as-Generation (CAG)
 
-- `finetune_mode: 'dora'`
-- Target modules: `q_proj`, `k_proj`, `v_proj`, `o_proj` (all attention projections)
-- Default rank/alpha: 16 / 32 (`configs/hyperparameters_2019LA.yaml`, `hyperparameters_2021_LA_2.yaml`, `hyperparameters_2021_DF_2.yaml`). For ASVspoof5 the rank/alpha is increased to 32 / 64 — this is the "Attention DoRA" configuration (`configs/hyperparameters_05_*.yaml`).
-- The audio encoder can independently be frozen or DoRA-adapted via `trainable_audio_encoder` in the YAML config.
-- The `multi_modal_projector` (audio→LM bridge) can independently be wrapped in LoRA/DoRA adapters via `projector_peft` (see below).
+For each recording, the code constructs one candidate sequence per class:
 
-### Projector PEFT (catastrophic-forgetting mitigation)
+```text
+candidate_0: [prompt_tokens | label_texts[0]]   # e.g. "bonafide"
+candidate_1: [prompt_tokens | label_texts[1]]   # e.g. "spoof"
+```
 
-The `multi_modal_projector` is the single bottleneck between the audio encoder and the LM, so unconstrained end-to-end updates here can shift the LM input distribution in ways the LM-side LoRA cannot compensate for. The YAML flag `projector_peft` exposes a parameter-efficient alternative:
+The candidate texts come from `generation_classification.label_texts` in the YAML configuration.
 
-- `projector_peft: False` — default; legacy end-to-end training of projector
-- `projector_peft: True` — freeze base projector weights, train LoRA/DoRA adapters on `linear_1` / `linear_2` only
+`score_label_logprob()` obtains the logits from the language model and computes the negative log-likelihood only over the label tokens. It uses a shifted mask because the logits at position `t` predict the token at `t + 1`.
 
-When `projector_peft: True`:
+To reduce peak GPU memory use, the implementation releases references to intermediate output and logits tensors before the loss computation's float32 conversion. It can also normalise each candidate score by the number of label tokens; this is important when the labels have different token lengths.
 
-- Requires `finetune_mode` in `('lora', 'dora')`. Other modes raise `ValueError` at wrapper init so the misconfiguration fails fast.
-- Adapter hyperparameters reuse `lora_rank` / `lora_alpha` / `lora_dropout` from the LM PEFT — no new YAML keys.
-- Target modules (`'linear_1'`, `'linear_2'`) cover both Voxtral's built-in projector (`k_downsample=4`) and the custom `VoxtralModalProjector_Encoder_Audio` (`k_downsample != 4`). Same Linear submodule names in both implementations.
-- The PEFT-wrapped projector's state*dict keys change to `base_model.model.linear*\*.{base_layer,lora_A,lora_B[,lora_magnitude_vector]}`. These roundtrip cleanly through `wrapper_state_dict`+`strict=True`. Toggling the flag across resume is intentionally rejected (key mismatch — same policy as changing `lora_rank`).
-- Backward compatibility: default `False` is bit-for-bit identical to the pre-flag codebase; old checkpoints load unchanged.
+The decision rule is:
+
+```text
+scores = [logP(label_0 | audio), logP(label_1 | audio)]
+prediction = argmax(scores)
+```
+
+A softmax over the two scores gives normalised class probabilities without changing the predicted class.
+
+## Fine-Tuning
+
+Our main parameter-efficient fine-tuning method is **DoRA** (Weight-Decomposed Low-Rank Adaptation).
+
+For the language model, the typical configuration is:
+
+```yaml
+finetune_mode: dora
+target_modules: [q_proj, k_proj, v_proj, o_proj]
+```
+
+The 2019 LA and 2021 LA/DF configurations use rank 16 and α = 32. For the ASVspoof5 attention-DoRA experiments, these are increased to rank 32 and α = 64. The corresponding values are defined in each experiment's YAML file.
+
+The audio encoder is configured separately through `trainable_audio_encoder`. The multimodal projector can also use LoRA/DoRA through `projector_peft`.
+
+### Projector PEFT
+
+The multimodal projector is the connection between the encoder and the decoder. Training it without constraints can change the representations seen by the language model. We therefore added an option to adapt the projector while keeping its original linear weights frozen.
+
+```yaml
+projector_peft: False  # train the projector normally (default)
+projector_peft: True   # freeze base weights; train LoRA/DoRA adapters
+```
+
+When enabled, this option:
+
+- Requires `finetune_mode` to be `lora` or `dora`. Other modes raise `ValueError` during model construction.
+- Reuses `lora_rank`, `lora_alpha`, and `lora_dropout` from the language-model configuration.
+- Targets `linear_1` and `linear_2` in either the built-in or custom projector.
+- Changes the projector's checkpoint keys, so switching `projector_peft` between training and resume is not supported.
+
+The default remains `False` for compatibility with older runs and checkpoints.
 
 ## Loss Functions
 
-All loss computations operate on length-normalised log-probs to eliminate label length bias. For example, `"bonafide"` tokenises to 2 tokens and `"spoof"` to 1; without per-token normalisation the model would systematically assign higher raw log-prob to the shorter label even with equal per-token confidence.
+CAG training compares the candidate-label scores. The configuration can combine cross-entropy with a margin term and an optional teacher-forcing regulariser.
 
-**1. Cross-Entropy Classification Loss** (always active)
-CE over a 2-class softmax of the length-normalised logprobs:
+### 1. Classification cross-entropy
 
-```text
-loss = F.cross_entropy([logP(label_0), logP(label_1)], true_class)
+Cross-entropy is applied to the two class scores:
+
+```python
+loss_ce = F.cross_entropy(class_scores, true_class)
 ```
 
-Optional per-class weighting via `class_weights` in the YAML.
+`class_scores` contains token-length-normalised log-probabilities when `normalize_logprob_by_tokens: True`. This reduces the bias toward labels that happen to tokenize into fewer tokens. Optional class weights can be set with `class_weights`.
 
-**2. Margin Loss** (optional, `use_margin_loss: True`)
-Hinge loss that enforces a minimum score gap between the correct and incorrect class. Uses the same length-normalised logprobs as CE so the margin threshold is meaningful regardless of label token count.
+### 2. Margin loss (optional)
 
-Formula (per sample):
-
-```text
-diff  = logP(correct_label) - logP(wrong_label)
-loss  = relu(margin - diff)
-```
-
-Separate margins for each semantic class (`margin_bonafide`, `margin_spoof`) are assigned by inspecting `label_texts_map` values at startup, not by hardcoding index 0 = bonafide. This preserves correctness when the YAML label order is swapped or custom label names are used.
-
-**3. Teacher-Forcing Regularisation** (optional, `teacher_forcing_loss: True`)
-Auxiliary NLL encouraging the model to fluently generate the correct label. Only the ground-truth label's NLL is used — the wrong candidate's loss is never included. Scaled by `teacher_forcing_loss_lambda` (default 0.1). The per-sample NLL is a scalar extracted via `return_lm_loss=True`, so the full logit tensor is never kept alive during this computation.
+With `use_margin_loss: True`, a hinge loss encourages a gap between the correct and incorrect label scores:
 
 ```text
-Total loss = cag_loss_weight * ce_loss
-           + lambda_margin   * margin_loss   (if use_margin_loss)
-           + tf_lambda       * tf_loss       (if teacher_forcing_loss)
+diff = logP(correct_label) - logP(wrong_label)
+loss_margin = relu(margin - diff)
 ```
 
-## Forward Pass Optimisation (Batched 2B Forward)
+`margin_bonafide` and `margin_spoof` allow different margins for the two classes. The code uses the configured label texts to determine which margin belongs to which class, so changing the label order does not by itself swap their meanings. See the configuration note below for custom label names.
 
-Both candidates for every sample are processed in a single LLM forward pass:
+## Batched CAG Forward Pass
 
-1. Audio encoder runs once per batch → embeddings cached as `audio_embeds_cache`.
-2. Bonafide and spoof candidate sequences are right-padded to a common length and concatenated into a `(2*B, L_max)` batch.
-3. Audio embeds are tiled: `torch.cat([embeds, embeds], dim=0)`.
-4. One LM forward pass returns logits for all `2*B` sequences.
-5. Logits are released from VRAM immediately after NLL extraction.
-6. Results are split: `logp_b = logp_all[:B]`, `logp_s = logp_all[B:]`.
+Rather than running the decoder separately for both labels, the CAG implementation scores both candidates in one forward pass:
 
-This halves LLM forward passes compared to scoring each candidate separately.
+1. The audio encoder runs once per input batch and its embeddings are cached.
+2. The two sets of candidate sequences are padded to the same length.
+3. The cached audio embeddings are duplicated to match a batch of size `2 * B`.
+4. One language-model forward pass produces the logits for both candidates.
+5. The label scores are extracted and split back into the two classes.
 
-**VRAM management during NLL extraction:**
+This reduces the number of decoder forward passes compared with evaluating each candidate separately.
 
-- `score_label_logprob` deletes its local logits reference before calling `for_causal_lm_loss`, so that function's fp32 upcast does not overlap with the original AMP-precision tensor.
-- `for_causal_lm_loss` deletes the fp32 tensor immediately after `view(-1, vocab_size)` is created, before `fixed_cross_entropy` allocates loss buffers.
-- The AMP autocast context is created once before the epoch loop, not recreated on every batch step.
 
-## Resume Behaviour
+### Checkpoint fields
 
-All training state is saved in checkpoints and fully restored on resume:
+| Key | Description |
+| --- | --- |
+| `wrapper_state_dict` | Model state (contents depend on the fine-tuning setup) |
+| `optimizer` | Optimizer state |
+| `scheduler` | Learning-rate scheduler state |
+| `scaler` | GradScaler state for fp16 AMP, when used |
+| `epoch` | Zero-indexed epoch at save time |
+| `epoch_completed` | Whether the epoch finished before the checkpoint was saved |
+| `global_step` | Optimizer step counter |
+| `best_eer` | Best dev EER recorded |
+| `best_dev_eer` | Independent best dev EER tracker |
+| `best_eval_eer` | Independent best eval EER tracker |
+| `rng_states` | Torch, CUDA, NumPy, and Python RNG states |
+| `last_eval_epoch` / `last_eval_step` | Per-split evaluation trackers (eight keys in total) |
+| `wandb_id` | W&B run ID |
+| `configs` | Saved configuration snapshot |
 
-- `start_epoch` / `start_step`
-- `best_eer` (best dev EER — controls which dev checkpoint is saved)
-- `best_eval_eer` (best eval EER — controls which eval checkpoint is saved)
-- optimizer / scheduler / scaler state
-- RNG states (torch / cuda / numpy / python)
-- W&B run ID (resumes the same run rather than opening a new one)
-- Last eval timestamps (epoch / step) for each split (8 keys)
+Resume behaviour depends on whether the last epoch finished:
 
-Auto-resume is gated by `configs.resume=True` in the YAML. It does **not** trigger automatically on any checkpoint found in `output_dir`. This prevents accidental resumption when the user intentionally starts a fresh run.
+```text
+epoch_completed = True  → continue with epoch + 1
+epoch_completed = False → restart that epoch
+```
 
-Progressive-training `requires_grad` flags are also explicitly restored because PyTorch `state_dict` does not persist `requires_grad`. `load_state_dict` uses `strict=True` everywhere — mismatched architectures (e.g. changed `lora_rank`, toggled `projector_peft`) raise immediately rather than silently training with wrong weights. To recover, delete the checkpoint and start fresh.
-
-## Checkpoint Format
-
-Every checkpoint is a dict with these keys:
-
-| Key                      | Description                                               |
-| ------------------------ | --------------------------------------------------------- |
-| `wrapper_state_dict`     | model weights (only LoRA deltas for PEFT runs)            |
-| `optimizer`              | optimizer state                                           |
-| `scheduler`              | LR scheduler state                                        |
-| `scaler`                 | GradScaler state (only for fp16 AMP)                      |
-| `epoch`                  | 0-indexed loop variable at save time                      |
-| `epoch_completed`        | `True` = end-of-epoch save, `False` = mid-epoch step save |
-| `global_step`            | global optimizer step count                               |
-| `best_eer`               | best dev EER seen so far                                  |
-| `best_dev_eer`           | best dev EER (independent tracker)                        |
-| `best_eval_eer`          | best eval/test EER (independent tracker)                  |
-| `rng_states`             | `{torch, cuda, numpy, python}` RNG states                 |
-| `last_eval_epoch`/`step` | per-split last-eval trackers (8 keys total)               |
-| `wandb_id`               | W&B run ID for reconnecting                               |
-| `configs`                | config dict snapshot for mismatch detection               |
-
-Saves are atomic (`.pt` via tmp→`os.replace` with fsync, adapters via tmp→`os.rename`, JSON via tmp→`os.replace`) for power-loss safety.
-
-On resume:
-
-- `epoch_completed=True` → `start_epoch = epoch + 1` (completed; continue next)
-- `epoch_completed=False` → `start_epoch = epoch` (interrupted; replay epoch)
-
-Cleanup pins the metric-best files (referenced by `best_dev_metrics.json` / `best_eval_metrics.json`), `best_dev/` and `best_eval/` subdirectories, and `checkpoint-last.pt`. Those are never deleted by `cleanup_old_checkpoints`.
+Checkpoint saves use temporary files and atomic replacement/rename operations. Cleanup retains `checkpoint-last.pt`, the files referenced by `best_dev_metrics.json` and `best_eval_metrics.json`, and the `best_dev/` and `best_eval/` directories.
 
 ## Training Scripts
 
-Each script corresponds to a dataset / paradigm / experiment variant.
+Each entry point selects a dataset, training paradigm, or experiment configuration.
 
-### CAG scripts (no classification head — score label logprobs)
+### Classification-as-Generation
 
-| Script                                                                                            | Dataset / Variant                                    | YAML                                             |
-| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------ |
-| [`training_voxtral_generation_tokens05_21.py`](training_voxtral_generation_tokens05_21.py) (root) | ASVspoof5, ASVspoof2021-derived margin schedule      | `hyperparameters_05_dif_margins21.yaml`          |
-| `more_training_voxtral_scripts/training_voxtral_generation_tokens05_21_bigmargin.py`              | Same as above, larger margin                         | `hyperparameters_05_dif_margins21bigmargin.yaml` |
-| `more_training_voxtral_scripts/training_voxtral_generation_tokens05_21_LLM.py`                    | ASVspoof5, LLM-only PEFT (no audio-encoder adapters) | `hyperparameters_05_dif_margins21_LLM.yaml`      |
-| `more_training_voxtral_scripts/training_voxtral_generation_tokens05_no_margin.py`                 | ASVspoof5, no margin loss (primary clean baseline)   | `hyperparameters_05_no_margin.yaml`              |
-| `more_training_voxtral_scripts/training_voxtral_generation_tokens05_no_margin_realfake.py`        | ASVspoof5, no margin, `"real"`/`"fake"` label texts  | `hyperparameters_05_no_margin_realfake.yaml`     |
-| `more_training_voxtral_scripts/training_voxtral_generation_tokens2019LA.py`                       | ASVspoof2019 Logical Access                          | `hyperparameters_2019LA.yaml`                    |
-| `more_training_voxtral_scripts/training_voxtral_generation_tokens2021_LA.py`                      | ASVspoof2021 Logical Access                          | `hyperparameters_2021_LA_2.yaml`                 |
-| `more_training_voxtral_scripts/training_voxtral_generation_tokens2021_DF.py`                      | ASVspoof2021 Deepfake                                | `hyperparameters_2021_DF_2.yaml`                 |
+| Script | Dataset / variant | YAML |
+| --- | --- | --- |
+| [`training_voxtral_generation_tokens05_21.py`](training_voxtral_generation_tokens05_21.py) | ASVspoof5, ASVspoof2021 DoRA + Margin | `hyperparameters_05_dif_margins21.yaml` |
+| `more_training_voxtral_scripts/training_voxtral_generation_tokens05_21_bigmargin.py` | ASVspoof5, larger Margin | `hyperparameters_05_dif_margins21bigmargin.yaml` |
+| `more_training_voxtral_scripts/training_voxtral_generation_tokens05_21_LLM.py` | ASVspoof5, LLM-only DoRA | `hyperparameters_05_dif_margins21_LLM.yaml` |
+| `more_training_voxtral_scripts/training_voxtral_generation_tokens05_no_margin.py` | ASVspoof5, no-margin baseline | `hyperparameters_05_no_margin.yaml` |
+| `more_training_voxtral_scripts/training_voxtral_generation_tokens05_no_margin_realfake.py` | ASVspoof5, `"real"` / `"fake"` labels | `hyperparameters_05_no_margin_realfake.yaml` |
+| `more_training_voxtral_scripts/training_voxtral_generation_tokens2019LA.py` | ASVspoof2019 LA | `hyperparameters_2019LA.yaml` |
+| `more_training_voxtral_scripts/training_voxtral_generation_tokens2021_LA.py` | ASVspoof2021 LA | `hyperparameters_2021_LA_2.yaml` |
+| `more_training_voxtral_scripts/training_voxtral_generation_tokens2021_DF.py` | ASVspoof2021 DF | `hyperparameters_2021_DF_2.yaml` |
 
-All CAG scripts share [`utils/training_evaluate_classification.py`](utils/training_evaluate_classification.py) and differ only in which YAML config file they load. [`scripts/train.py`](scripts/train.py) provides the same training loop as a single entry point parameterised by `--config` instead of a dedicated script per variant.
+These scripts use [`utils/training_evaluate_classification.py`](utils/training_evaluate_classification.py). You can also run CAG experiments through [`scripts/train.py`](scripts/train.py) by specifying a YAML file with `--config`.
 
-### Audio-Adapter + MLP-head scripts (LM frozen / optionally offloaded)
+### Audio-Adapter + MLP head
 
-| Script                                                                                      | Dataset / Variant           | YAML                                                |
-| ------------------------------------------------------------------------------------------- | --------------------------- | --------------------------------------------------- |
-| [`training_audio_adapter_head_5_margin.py`](training_audio_adapter_head_5_margin.py) (root) | ASVspoof5, with margin loss | `hyperparameters_5_classification_head_margin.yaml` |
-| `more_training_audio_adapter_scripts/training_audio_adapter_head.py`                        | ASVspoof5 base trainer      | `hyperparameters_5_classification_head.yaml`        |
-| `more_training_audio_adapter_scripts/training_audio_adapter_head_2019LA.py`                 | ASVspoof2019 LA             | `hyperparameters_2019LA_classification_head.yaml`   |
-| `more_training_audio_adapter_scripts/training_audio_adapter_head_2021LA.py`                 | ASVspoof2021 LA             | `hyperparameters_2021LA_classification_head.yaml`   |
-| `more_training_audio_adapter_scripts/training_audio_adapter_head_2021DF.py`                 | ASVspoof2021 Deepfake       | `hyperparameters_2021DF_classification_head.yaml`   |
+| Script | Dataset / variant | YAML |
+| --- | --- | --- |
+| [`training_audio_adapter_head_5_margin.py`](training_audio_adapter_head_5_margin.py) | ASVspoof5, margin loss | `hyperparameters_5_classification_head_margin.yaml` |
+| `more_training_audio_adapter_scripts/training_audio_adapter_head.py` | ASVspoof5 baseline | `hyperparameters_5_classification_head.yaml` |
+| `more_training_audio_adapter_scripts/training_audio_adapter_head_2019LA.py` | ASVspoof2019 LA | `hyperparameters_2019LA_classification_head.yaml` |
+| `more_training_audio_adapter_scripts/training_audio_adapter_head_2021LA.py` | ASVspoof2021 LA | `hyperparameters_2021LA_classification_head.yaml` |
+| `more_training_audio_adapter_scripts/training_audio_adapter_head_2021DF.py` | ASVspoof2021 DF | `hyperparameters_2021DF_classification_head.yaml` |
 
-These share [`utils/training_helpers_audio_adapter_head.py`](utils/training_helpers_audio_adapter_head.py) and load `configs/hyperparameters_*_classification_head.yaml`.
+These scripts use [`utils/training_helpers_audio_adapter_head.py`](utils/training_helpers_audio_adapter_head.py).
 
 ## Inference Scripts
 
-Standalone evaluation entry-points for a saved checkpoint (no training loop):
+Use the following scripts to evaluate saved checkpoints without running the training loop.
 
-| Script                                                                          | Purpose                                                                          |
-| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| [`inference_checkpoint_new.py`](inference_checkpoint_new.py) (root)             | Generic CAG inference, ASVspoof5                                                 |
-| [`inference_checkpoint_no_margin.py`](inference_checkpoint_no_margin.py) (root) | Companion to the no-margin CAG training variant                                  |
-| `more_inference_scripts/inference_checkpoint_2021_2019.py`                      | CAG inference across ASVspoof2021 DF/LA and ASVspoof2019 LA                      |
-| `more_inference_scripts/inference_checkpoint_LLM.py`                            | CAG inference for the LLM-only PEFT variant                                      |
-| `more_inference_scripts/inference_checkpoint_real_fake.py`                      | CAG inference for the `"real"`/`"fake"` label-text variant                       |
-| `more_inference_scripts/inference_checkpoint_5_encoder_2.py`                    | Audio-Adapter + MLP-head inference, ASVspoof5                                    |
-| `more_inference_scripts/inference_checkpoint_2021_2019_encoder.py`              | Audio-Adapter + MLP-head inference across ASVspoof2021 DF/LA and ASVspoof2019 LA |
+| Script | Purpose |
+| --- | --- |
+| [`inference_checkpoint_new.py`](inference_checkpoint_new.py) | General CAG inference for ASVspoof5 |
+| [`inference_checkpoint_no_margin.py`](inference_checkpoint_no_margin.py) | No-margin CAG variant |
+| `more_inference_scripts/inference_checkpoint_2021_2019.py` | CAG inference for ASVspoof2021 LA/DF and ASVspoof2019 LA |
+| `more_inference_scripts/inference_checkpoint_LLM.py` | LM-only PEFT variant |
+| `more_inference_scripts/inference_checkpoint_real_fake.py` | `"real"` / `"fake"` label variant |
+| `more_inference_scripts/inference_checkpoint_5_encoder_2.py` | Audio-Adapter + MLP-head inference for ASVspoof5 |
+| `more_inference_scripts/inference_checkpoint_2021_2019_encoder.py` | Audio-Adapter + MLP-head inference for ASVspoof2021 LA/DF and ASVspoof2019 LA |
 
-Common behavior: load checkpoint via `load_checkpoint_into_model` (`strict=True`), rebuild the wrapper with matching `projector_peft` / `finetune_mode` / `lora_rank` values, and emit per-utterance scores + EER.
+Inference rebuilds the model with the matching fine-tuning configuration, loads the checkpoint using `load_checkpoint_into_model` with `strict=True`, and produces utterance-level scores and EER.
 
-## Embedding & Projector Analysis
+## Embedding and Projector Analysis
 
-[`calc_embeddings_projector_codes/`](calc_embeddings_projector_codes/) is a standalone representation-analysis pipeline, separate from the CAG / classification-head training loops above. It extracts frozen Voxtral embeddings, packages them into dataset-level NPZ bundles, and trains/evaluates lightweight linear classifiers directly on top of those embeddings — used for the linear-probing numbers in [Results](#results) (LLM-decoder vs. audio-adapter embeddings). See [`calc_embeddings_projector_codes/README.md`](calc_embeddings_projector_codes/README.md) for full details; these scripts are configured by editing constants at the top of each file rather than via the `configs/*.yaml` system used elsewhere in this repo.
+[`calc_embeddings_projector_codes/`](calc_embeddings_projector_codes/) contains our representation-analysis scripts. This pipeline is separate from the main training code: it extracts Voxtral embeddings, groups them into NPZ datasets, trains lightweight classifiers, and compares representations from different model stages.
 
-Pipeline (each stage optional after the first two):
+We used this analysis for the frozen-model linear-probing results in the paper. See [`calc_embeddings_projector_codes/README.md`](calc_embeddings_projector_codes/README.md) for usage details. Unlike the main training scripts, these utilities are configured through constants in the scripts themselves.
 
-| Script                                                                                               | Purpose                                                                                                                                                                      |
-| ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`calc_embeddings.py`](calc_embeddings_projector_codes/calc_embeddings.py)                           | Extracts per-file embeddings from a selected Voxtral stage (`audio_projector`, `llama`, or `lm_head`) and writes a metadata CSV                                              |
-| [`aggregate_embeddings_to_npz.py`](calc_embeddings_projector_codes/aggregate_embeddings_to_npz.py)   | Merges per-file embeddings + metadata CSV into a single `total_{train,dev,eval}_embeddings.npz` bundle                                                                       |
-| [`verify_npz_embeddings.py`](calc_embeddings_projector_codes/verify_npz_embeddings.py)               | Sanity-checks an NPZ bundle (shape, NaN/Inf, metadata-length consistency) before training                                                                                    |
-| [`training_on_embeds_one_net_5.py`](calc_embeddings_projector_codes/training_on_embeds_one_net_5.py) | Trains a linear PyTorch Lightning classifier on the frozen embeddings, tracking EER                                                                                          |
-| [`score_embeddings_pipeline.py`](calc_embeddings_projector_codes/score_embeddings_pipeline.py)       | Scores saved checkpoints across train/dev/eval splits, with optional bootstrap confidence intervals                                                                          |
-| [`compare_embeddings.py`](calc_embeddings_projector_codes/compare_embeddings.py)                     | Compares two embedding spaces via cosine similarity, L2 distance, CKA, and pairwise-distance correlation                                                                     |
-| [`plot_pacmap_embeddings.py`](calc_embeddings_projector_codes/plot_pacmap_embeddings.py)             | Produces the paper's Figure 2: PaCMAP 2D projections of audio-adapter vs. LLM-decoder embeddings across ASVspoof5 train/dev/eval, fit on train and transformed onto dev/eval |
+| Script | Purpose |
+| --- | --- |
+| [`calc_embeddings.py`](calc_embeddings_projector_codes/calc_embeddings.py) | Extracts embeddings at the `audio_projector`, `llama`, or `lm_head` stage and writes metadata |
+| [`aggregate_embeddings_to_npz.py`](calc_embeddings_projector_codes/aggregate_embeddings_to_npz.py) | Combines embeddings and metadata into train/dev/eval NPZ files |
+| [`verify_npz_embeddings.py`](calc_embeddings_projector_codes/verify_npz_embeddings.py) | Checks shapes, NaN/Inf values, and metadata consistency |
+| [`training_on_embeds_one_net_5.py`](calc_embeddings_projector_codes/training_on_embeds_one_net_5.py) | Trains a linear classifier on saved embeddings |
+| [`score_embeddings_pipeline.py`](calc_embeddings_projector_codes/score_embeddings_pipeline.py) | Evaluates embedding classifiers, optionally with bootstrap confidence intervals |
+| [`compare_embeddings.py`](calc_embeddings_projector_codes/compare_embeddings.py) | Compares embeddings using cosine similarity, L2 distance, CKA, and pairwise-distance correlation |
+| [`plot_pacmap_embeddings.py`](calc_embeddings_projector_codes/plot_pacmap_embeddings.py) | Produces PaCMAP visualisations for train/dev/eval embeddings |
 
-## Configuration (`configs/*.yaml`)
+## Configuration
 
-All hyperparameters are YAML-driven. Nothing is hardcoded in training scripts. Key fields in `configs/hyperparameters_05_no_margin.yaml` (primary config):
+Most training settings are defined in `configs/*.yaml`. The following example is based on `configs/hyperparameters_05_no_margin.yaml` and shows the main options; refer to the actual configuration files for experiment-specific values.
 
 ```yaml
 model_id: mistralai/Voxtral-Mini-3B-2507
@@ -323,48 +297,43 @@ lr_scheduler_type: cosine
 scheduler.warmup_ratio: 0.05
 max_grad_norm: 1.0
 
-finetune_mode: dora # lora | dora | adalora | frozen | full
+finetune_mode: dora   # lora | dora | adalora | frozen | full
 lora_rank: 32
 lora_alpha: 64
 lora_dropout: 0.05
 target_modules: [q_proj, k_proj, v_proj, o_proj]
 
-# Audio encoder: full FT (True), frozen (False), or DoRA-adapted ("dora")
+# Audio encoder: full fine-tuning (True), frozen (False), or DoRA ("dora")
 trainable_audio_encoder: dora
-# External encoder selector: None | wav2vec2 | hubert | wavlm
+
+# Optional external encoder: None | wav2vec2 | hubert | wavlm
 encoder_type: None
-# Audio temporal downsample before the projector. 4 = built-in projector;
-# any other value swaps in the custom VoxtralModalProjector_Encoder_Audio.
+
+# 4 uses Voxtral's built-in projector; other values select a custom one
 k_downsample: 4
 
-# Wrap multi_modal_projector in LoRA/DoRA adapters (freezes base projector
-# weights). Requires finetune_mode in ('lora','dora'). Default False = legacy
-# end-to-end training of the projector. Adapter r/alpha/dropout shared with LM.
+# Adapt the projector with LoRA/DoRA instead of updating its base weights
 projector_peft: False
 
-# Precision (mutually exclusive with use_amp / use_fp16):
-precision: bfloat16 # bfloat16 | float16 | float32 | amp
-use_4bit: False # QLoRA quantisation
-resume: False # set True to auto-resume from latest ckpt
+precision: bfloat16  # bfloat16 | float16 | float32 | amp
+use_4bit: False
+resume: False      # set True to resume from an existing checkpoint
 
 generation_classification:
   enable: True
-  label_texts: { 0: "bonafide", 1: "spoof" } # fully dynamic; no hardcoding
-  normalize_logprob_by_tokens: True # length-normalisation ON (required)
+  label_texts: {0: "bonafide", 1: "spoof"}
+  normalize_logprob_by_tokens: True
   temperature: 1.0
   teacher_forcing_loss: False
   loss_type: cross_entropy
 
 use_margin_loss: False
-margin_bonafide: 0.1 # margin applied to samples whose true class is "bonafide"
-margin_spoof: 0.05 # margin applied to samples whose true class is "spoof"
-lambda_margin:
-  0.05 # weight of the margin loss term (values above match the
-  # paper's Spooftral (Attention DoRA + Margin) config,
-  # used in all margin-loss experiments)
+margin_bonafide: 0.1
+margin_spoof: 0.05
+lambda_margin: 0.05
 
 augmentation_on: True
-CODEC_PERTURB: True # mp3, aac, opus, flac, wav, g722, amr, …
+CODEC_PERTURB: True
 AUG_ADD_NOISE: True
 AUG_TIME_MASK: True
 AUG_FREQ_MASK: True
@@ -374,195 +343,174 @@ SELECTIVE_AUGMENTATION: True
 MAX_AUGMENTATIONS_PER_SAMPLE: 4
 ```
 
-> **Note on margin semantics:** `margin_bonafide` is applied to samples whose true class label text contains `"bonafide"` (case-insensitive substring match against `label_texts_map` values). The semantic assignment is YAML-driven — if you use custom label names, the `margin_*` keys still match by text content, not by index. If no match is found the fallback is index 0 → bonafide, index 1 → spoof.
+**Margin labels:** The code assigns `margin_bonafide` by checking whether a configured label contains `"bonafide"`. If you introduce new class names, check this mapping rather than assuming arbitrary names will be recognised automatically.
 
 ## Key Source Files
 
-**[`utils/training_evaluate_classification.py`](utils/training_evaluate_classification.py)**
-Core training loop. `train_classification_model()` orchestrates batched forward passes, loss computation, evaluation, checkpointing, and logging. Supports resume from checkpoint, EER-based model selection, W&B logging.
+| File | Role |
+| --- | --- |
+| [`utils/training_evaluate_classification.py`](utils/training_evaluate_classification.py) | CAG training, losses, evaluation, checkpointing, and W&B logging |
+| [`utils/generation_text_bonafide_spoof_classification.py`](utils/generation_text_bonafide_spoof_classification.py) | Candidate construction, label masks, and log-probability scoring |
+| [`utils/eval_classification.py`](utils/eval_classification.py) | Dev/eval EER loop with inference mode and training-mode restoration |
+| [`utils/build_model.py`](utils/build_model.py) | Voxtral loading, fine-tuning setup, projector, and CAG wrapper |
+| [`utils/build_model_for_classification_head.py`](utils/build_model_for_classification_head.py) | `AudioAdapterHeadClassifier` and its tuning/pooling settings |
+| [`utils/training_helpers_audio_adapter_head.py`](utils/training_helpers_audio_adapter_head.py) | Training for the MLP-head paradigm |
+| [`utils/checkpoint_utils.py`](utils/checkpoint_utils.py) | Checkpoint save/load and resume state |
+| [`utils/cleanup_checkpoints.py`](utils/cleanup_checkpoints.py) | Old-checkpoint cleanup while preserving selected checkpoints |
+| [`utils/freezing.py`](utils/freezing.py) | Diagnostic summary of frozen and trainable parameters |
+| [`utils/losses.py`](utils/losses.py) | Token-level causal LM loss with float32 computation |
+| [`utils/dataset.py`](utils/dataset.py) | Dataset protocols, audio loading, and on-the-fly augmentation |
+| [`utils/augmentation.py`](utils/augmentation.py), [`utils/codec.py`](utils/codec.py) | Audio perturbation and codec simulations |
+| [`utils/RawBoost.py`](utils/RawBoost.py), [`utils/data_utils_rawboost.py`](utils/data_utils_rawboost.py) | RawBoost augmentations |
+| [`utils/config.py`](utils/config.py) | YAML loading and experiment settings |
+| [`configs/`](configs/) | Configurations for CAG and classification-head experiments |
+| [`calc_embeddings_projector_codes/`](calc_embeddings_projector_codes/) | Frozen-embedding extraction and linear probing |
 
-**[`utils/generation_text_bonafide_spoof_classification.py`](utils/generation_text_bonafide_spoof_classification.py)**
-CAG primitives: `build_cag_candidate()` (tokenises and appends label text to prompt), `make_lm_labels()` (creates teacher-forcing labels with `-100` mask), `score_label_logprob()` (full scoring function with shifted mask trick).
-
-**[`utils/eval_classification.py`](utils/eval_classification.py)**
-EER evaluation loop for dev/eval sets. Runs under `torch.inference_mode()`, restores train mode in a `finally` block.
-
-**[`utils/build_model.py`](utils/build_model.py)**
-Model construction: loads Voxtral, applies DoRA/LoRA to LM and (optionally) audio encoder + projector. Key classes/functions: `build_voxtral_model()`, `VoxtralStageWrapper_classification`, `VoxtralModalProjector_Encoder_Audio`, `_adapt_state_keys()`, `compute_audio_embeds()`.
-
-**[`utils/build_model_for_classification_head.py`](utils/build_model_for_classification_head.py)**
-`AudioAdapterHeadClassifier` — alternative architecture that replaces the LM with a small MLP head. Modes: `audio_encoder_tuning` (frozen/finetune/lora/dora), `pooling_strategy`, `drop_language_model`.
-
-**[`utils/training_helpers_audio_adapter_head.py`](utils/training_helpers_audio_adapter_head.py)**
-Training loop for the classification-head paradigm (mirrors the CAG loop interface but skips all generation-scoring code paths).
-
-**[`utils/checkpoint_utils.py`](utils/checkpoint_utils.py)**
-Checkpoint save/load with full resume state: weights, optimizer, scheduler, scaler, RNG states, per-split last-eval trackers, W&B run ID. Config-mismatch warnings on resume. Atomic via `.tmp` → `os.replace` + fsync.
-
-**[`utils/cleanup_checkpoints.py`](utils/cleanup_checkpoints.py)**
-`cleanup_old_checkpoints()` — prunes old `.pt` files in `output_dir` while pinning the metric-best files.
-
-**[`utils/freezing.py`](utils/freezing.py)**
-`verify_model_frozen()` — read-only diagnostic that prints a `requires_grad` summary, used before/after inference to confirm the model is in the expected frozen state.
-
-**[`utils/losses.py`](utils/losses.py)**
-`for_causal_lm_loss()` — token-level NLL with configurable reduction. Upcasts to float32 internally for numerical stability, deletes the fp32 tensor immediately after `.view()` to minimise peak VRAM.
-
-**[`utils/dataset.py`](utils/dataset.py)**
-ASVspoof dataset loaders (5 / 2021 LA / 2021 DF / 2019 LA) with on-the-fly augmentation. All protocols, including ASVspoof5's `.tsv` files, are whitespace-separated and parsed with `split()`.
-
-**[`utils/augmentation.py`](utils/augmentation.py) / [`utils/codec.py`](utils/codec.py) / [`utils/RawBoost.py`](utils/RawBoost.py) / [`utils/data_utils_rawboost.py`](utils/data_utils_rawboost.py)**
-Augmentation stack: `codec.py` (mp3/aac/opus/flac/wav/g722/amr sims), `augmentation.py` (add-noise, time/freq mask, gain, time-shift), `RawBoost.py` + `data_utils_rawboost.py` (RawBoost LnL/ISD/SSI variants).
-
-**[`utils/config.py`](utils/config.py)**
-YAML loader. Sets `cudnn.deterministic=True` / `benchmark=False` at startup. Forces `processor.feature_extractor.do_normalize=True`. Exposes `PROJECTOR_PEFT`, `K_DOWNSAMPLE`, `NUM_CLASSES`, and all PEFT hyperparameters as module-level constants for training scripts.
-
-**[`configs/`](configs/)**
-One YAML file per experiment variant:
-
-- CAG configs: `hyperparameters_05*.yaml` (ASVspoof5 variants), `hyperparameters_2019LA.yaml`, `hyperparameters_2021_LA_2.yaml`, `hyperparameters_2021_DF_2.yaml`
-- Classification-head configs: `hyperparameters_*_classification_head.yaml`
-
-**`inference_checkpoint*.py`** (root and `more_inference_scripts/`)
-Standalone inference for trained checkpoints (multiple dataset variants).
-
-**[`calc_embeddings_projector_codes/`](calc_embeddings_projector_codes/)**
-Standalone embedding-extraction and linear-probing pipeline (see [Embedding & Projector Analysis](#embedding--projector-analysis)); configured by editing constants in each script rather than YAML.
 
 ## How to Run
 
-1. **Install dependencies:**
+### 1. Install dependencies
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-2. **Edit or copy the relevant YAML config** in `configs/`:
+Some augmentations also require the `ffmpeg` system executable to be installed and available on `PATH`.
 
-   ```bash
-   cp configs/hyperparameters_05_no_margin.yaml configs/my_experiment.yaml
-   ```
+### 2. Set up a configuration
 
-   Update the placeholder paths (`train_protocol`, `dev_protocol`, `train_audio_dir`, `save_path`, `wandb.dir`, `wandb.entity`, etc.) for your own environment.
+Copy an existing YAML file and adjust the paths and settings for your environment:
 
-3. **Set W&B credentials** if using online logging:
+```bash
+cp configs/hyperparameters_05_no_margin.yaml configs/my_experiment.yaml
+```
 
-   ```bash
-   export WANDB_API_KEY=<your_key>
-   ```
+In particular, check the protocol paths, audio directories, `save_path`, and W&B settings.
 
-4. **Launch training.** The scripts do not initialise `torch.distributed` (no `init_process_group`, no `DistributedSampler`, no per-rank device placement — `DEVICE` in [`utils/config.py`](utils/config.py) is just `"cuda"` if available). This means there is currently no real multi-process data-parallel path: use a single `python` invocation on one GPU.
+### 3. Configure W&B (if enabled)
 
-   ```bash
-   python more_training_voxtral_scripts/training_voxtral_generation_tokens05_no_margin.py
-   ```
+```bash
+export WANDB_API_KEY=<your_key>
+```
 
-   Or via the unified entry point:
+### 4. Start training
 
-   ```bash
-   python scripts/train.py --config configs/hyperparameters_05_no_margin.yaml
-   ```
+For example, to train the ASVspoof5 CAG no-margin configuration:
 
-   To pin the run to a specific GPU on a multi-GPU machine, set `CUDA_VISIBLE_DEVICES` before launching:
+```bash
+python more_training_voxtral_scripts/training_voxtral_generation_tokens05_no_margin.py
+```
 
-   ```bash
-   CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/hyperparameters_05_no_margin.yaml
-   ```
+Or use the unified entry point with a configuration file:
 
-   `torchrun --nproc_per_node=N ...` will _run_, but without the distributed setup above it just starts `N` independent, non-coordinated copies of the same script contending for the same GPU and writing to the same `save_path` — not real distributed training. Treat `torchrun`/`accelerate launch` as future multi-GPU hooks rather than something to use as-is today.
+```bash
+python scripts/train.py --config configs/hyperparameters_05_no_margin.yaml
+```
 
-5. **Checkpoints are saved to** `<save_path>/<project_name>/` (defined in the YAML). The best checkpoint (lowest EER on the dev set) is retained as `checkpoint_best_dev.pt`. A separate `checkpoint_best_eval.pt` tracks the lowest EER on the eval (test) set independently.
+To select a GPU on a machine with several devices:
 
-6. **To resume**, re-launch the same command. The training loop detects the latest checkpoint automatically and restores all state, including `best_eval_eer`, so no spurious "new best" saves occur after resume.
+```bash
+CUDA_VISIBLE_DEVICES=0 python scripts/train.py --config configs/hyperparameters_05_no_margin.yaml
+```
 
-7. **Evaluation only** (no training): set `only_eval: True` in the YAML, then launch as above.
+### 5. Run evaluation only
+
+Set `only_eval: True` in the relevant YAML configuration and launch the same entry point.
 
 ## Evaluation
 
-Primary metric: **EER** (Equal Error Rate) — the FAR/FRR crossover point. Lower EER = better discrimination between bonafide and spoof speech.
+We report **Equal Error Rate (EER)**, where the false acceptance and false rejection rates are equal. Lower values indicate better separation between bonafide and spoofed speech.
 
-Two EER values are tracked independently:
+The training code tracks best dev and eval EER independently:
 
-- `best_eer` — best EER on the dev (validation) set; governs model saving
-- `best_eval_eer` — best EER on the eval (test) set; saved to a separate dir
+- `best_eer` / `best_dev_eer`: best validation EER, used for dev-based checkpoint selection.
+- `best_eval_eer`: best evaluation EER, retained separately for analysis.
 
-Both are saved in every checkpoint and fully restored on resume. Both are logged to W&B summary and printed to stdout/log files.
+These values are logged and stored in checkpoints so that they can be restored after a resume.
+
+**For fair model comparison, use the dev set for selecting checkpoints and tuning hyperparameters.** Tracking the best result on the eval set is useful for diagnostics, but choosing a final model based on eval performance introduces test-set selection bias.
 
 ## Datasets
 
-| Dataset             | Notes                                                                                                                                                                           |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ASVspoof5**       | Track 1 (closed condition). Protocol files: `ASVspoof5.train.tsv`, `ASVspoof5.dev.track_1.tsv`, `ASVspoof5.eval.track_1.tsv`. Audio format: FLAC. Despite the `.tsv` extension. |
-| **ASVspoof2021 LA** | Logical Access evaluation track. Protocol: `trial_metadata.txt` with key fields: `file_id`, `label`, `system_id`.                                                               |
-| **ASVspoof2021 DF** | Deepfake track. Larger, more diverse spoofing systems than LA. Used by the `*_DF` training scripts and `*_DF` YAMLs.                                                            |
-| **ASVspoof2019 LA** | Used for cross-dataset evaluation and the classification-head variant.                                                                                                          |
+| Dataset | Use in this repository |
+| --- | --- |
+| **ASVspoof5** | Main benchmark, Track 1 (closed condition). Uses `ASVspoof5.train.tsv`, `ASVspoof5.dev.track_1.tsv`, and `ASVspoof5.eval.track_1.tsv`; audio files are FLAC. The protocol parser reads whitespace-delimited fields despite the `.tsv` file extension. |
+| **ASVspoof2021 LA** | Logical Access evaluation data; `trial_metadata.txt` includes `file_id`, `label`, and `system_id`. |
+| **ASVspoof2021 DF** | Deepfake evaluation data with a wider range of synthesis/conversion conditions; used by the DF-specific scripts. |
+| **ASVspoof2019 LA** | Logical Access data used for experiments and cross-dataset analysis. |
 
-All datasets use binary labels: bonafide (genuine speech) / spoof (generated or replayed speech). The label strings fed to the model are YAML-defined, not hardcoded — the protocol parser maps protocol labels to YAML `label_texts` entries.
+The task is binary: **bonafide** (genuine speech) versus **spoof** (manipulated or generated speech). Candidate output labels for CAG are supplied through the YAML configuration.
 
 ## Results
 
-Numbers below are reported EER (%) from the paper.
+The following EER values (%) are reported in the paper.
 
-**Linear probing — audio-adapter vs. LLM-decoder embeddings (frozen Voxtral, no adaptation).** Confirms that spoof-discriminative cues are more separable _before_ the LLM decoder than after it, motivating task-specific adaptation:
+### Linear probing with frozen Voxtral
 
-| Database        | LLM Dev. | LLM Eval. | Audio Adapter Dev. | Audio Adapter Eval. |
-| --------------- | -------- | --------- | ------------------ | ------------------- |
-| ASVspoof2019 LA | 6.60     | 7.17      | 2.79               | 5.48                |
-| ASVspoof2021 LA | 9.26     | 17.34     | 2.79               | 13.57               |
-| ASVspoof2021 DF | 7.02     | 19.20     | 2.79               | 9.64                |
-| ASVspoof5       | 20.73    | 19.09     | 11.58              | 9.75                |
+We trained linear classifiers on frozen representations from the audio adapter and the LLM decoder. The audio-side representations gave lower EER across these evaluations, motivating the adaptation experiments.
 
-**Spooftral vs. Spooftral-Enc after DoRA adaptation** (Attention DoRA, + margin regularisation on ASVspoof5):
+| Database | LLM Dev. | LLM Eval. | Audio Adapter Dev. | Audio Adapter Eval. |
+| --- | ---: | ---: | ---: | ---: |
+| ASVspoof2019 LA | 6.60 | 7.17 | 2.79 | 5.48 |
+| ASVspoof2021 LA | 9.26 | 17.34 | 2.79 | 13.57 |
+| ASVspoof2021 DF | 7.02 | 19.20 | 2.79 | 9.64 |
+| ASVspoof5 | 20.73 | 19.09 | 11.58 | 9.75 |
 
-| Database        | Spooftral Dev. | Spooftral Eval. | Spooftral-Enc Dev. | Spooftral-Enc Eval. |
-| --------------- | -------------- | --------------- | ------------------ | ------------------- |
-| ASVspoof2019 LA | 0.02           | 0.41            | 0.03               | 0.40                |
-| ASVspoof2021 LA | 0.02           | 6.46            | 0.03               | 6.70                |
-| ASVspoof2021 DF | 0.05           | 3.88            | 0.05               | 4.76                |
-| ASVspoof5       | 4.50           | **4.25**        | 5.29               | 5.08                |
+### Spooftral and Spooftral-Enc
 
-**ASVspoof5 configuration ablation** — margin regularisation improves the Attention DoRA configuration on both splits:
+DoRA-adapted results (with attention DoRA and margin regularisation for the ASVspoof5 Spooftral result):
 
-| Configuration                                             | Dev. EER | Eval. EER |
-| --------------------------------------------------------- | -------- | --------- |
-| Spooftral (LLM Attention DoRA only, audio encoder frozen) | 7.89     | 7.01      |
-| Spooftral (Attention DoRA, incl. audio encoder)           | 4.77     | 4.46      |
-| Spooftral (Attention DoRA + Margin)                       | **4.50** | **4.25**  |
-| Spooftral-Enc (Attention DoRA)                            | 5.29     | 5.08      |
+| Database | Spooftral Dev. | Spooftral Eval. | Spooftral-Enc Dev. | Spooftral-Enc Eval. |
+| --- | ---: | ---: | ---: | ---: |
+| ASVspoof2019 LA | 0.02 | 0.41 | 0.03 | 0.40 |
+| ASVspoof2021 LA | 0.02 | 6.46 | 0.03 | 6.70 |
+| ASVspoof2021 DF | 0.05 | 3.88 | 0.05 | 4.76 |
+| ASVspoof5 | 4.50 | **4.25** | 5.29 | 5.08 |
 
-The `bonafide`/`spoof` instruction interface also outperforms a `real`/`fake` interface under identical DoRA settings (4.77/4.46 vs. 5.67/4.47 Dev./Eval. EER) — see [`hyperparameters_05_no_margin_realfake.yaml`](configs/hyperparameters_05_no_margin_realfake.yaml).
+### ASVspoof5 ablation
+
+| Configuration | Dev. EER | Eval. EER |
+| --- | ---: | ---: |
+| Spooftral (LLM attention DoRA only, frozen audio encoder) | 7.89 | 7.01 |
+| Spooftral (attention DoRA, including audio encoder) | 4.77 | 4.46 |
+| Spooftral (attention DoRA + margin) | **4.50** | **4.25** |
+| Spooftral-Enc (attention DoRA) | 5.29 | 5.08 |
+
+We also compared label wording under the same DoRA setup. `"bonafide"` / `"spoof"` produced 4.77% dev and 4.46% eval EER, while `"real"` / `"fake"` produced 5.67% dev and 4.47% eval EER. The corresponding configuration is [`hyperparameters_05_no_margin_realfake.yaml`](configs/hyperparameters_05_no_margin_realfake.yaml).
 
 ## Dependencies
 
-See [`requirements.txt`](requirements.txt) (`pip install -r requirements.txt`). Summary:
+Install the Python packages from [`requirements.txt`](requirements.txt). The main dependencies and their roles are:
 
-| Package                | Purpose                                                                        |
-| ---------------------- | ------------------------------------------------------------------------------ |
-| `torch >= 2.1`         | bfloat16 AMP, gradient checkpointing                                           |
-| `transformers >= 4.45` | `VoxtralForConditionalGeneration`                                              |
-| `peft >= 0.12`         | DoRA support                                                                   |
-| `torchaudio`           | audio I/O and augmentation                                                     |
-| `bitsandbytes`         | 4-bit/8-bit quantisation, QLoRA                                                |
-| `wandb`                | experiment tracking                                                            |
-| `numpy`, `scipy`       | EER computation, RawBoost augmentation                                         |
-| `scikit-learn`         | EER/ROC computation, classification metrics                                    |
-| `matplotlib`           | plotting scripts, debug spectrogram dumps                                      |
-| `tqdm`                 | progress bars                                                                  |
-| `evaluate`             | HuggingFace evaluate library                                                   |
-| `huggingface_hub`      | model/config downloads                                                         |
-| `python-dotenv`        | `.env` loading in `utils/config.py`                                            |
-| `omegaconf`            | optional config-container support                                              |
-| `pyyaml`               | config loading                                                                 |
-| `soundfile`            | FLAC reading                                                                   |
-| `ffmpeg`               | codec augmentation; **system binary**, must be on `PATH` (not pip-installable) |
+| Package | Purpose |
+| --- | --- |
+| `torch >= 2.1` | Model training, AMP, gradient checkpointing |
+| `transformers >= 4.45` | Voxtral model support |
+| `peft >= 0.12` | LoRA/DoRA adaptation |
+| `torchaudio` | Audio I/O and transformations |
+| `bitsandbytes` | Quantisation and QLoRA |
+| `wandb` | Experiment tracking |
+| `numpy`, `scipy` | Metrics and signal processing |
+| `scikit-learn` | ROC, EER, and classification metrics |
+| `matplotlib` | Visualisations |
+| `tqdm` | Progress bars |
+| `evaluate` | Hugging Face evaluation utilities |
+| `huggingface_hub` | Model and config downloads |
+| `python-dotenv` | Environment variable loading |
+| `omegaconf` | Optional config-container support |
+| `pyyaml` | YAML configuration parsing |
+| `soundfile` | FLAC/audio reading |
+| `ffmpeg` | Codec augmentation; install as a **system executable** and add to `PATH` |
 
 ## License
 
-The original Spooftral source code is licensed under the [Apache License 2.0](LICENSE) to the best of our knowledge. Incorporated third-party code retains its original copyright notices and license terms; see [Third-Party Notices](THIRD_PARTY_NOTICES.md) for details. The associated IEEE publication, including its text, figures, and tables, is subject to the applicable IEEE copyright terms and is not licensed under Apache 2.0.
+The Spooftral source code is distributed under the [Apache License 2.0](LICENSE), subject to the copyright and license terms of any incorporated third-party components. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for details.
 
-### Third-Party Software
+The associated IEEE publication, including its text, figures, and tables, is governed by the applicable IEEE copyright terms and is not covered by the repository's Apache 2.0 license.
 
-This repository includes adapted code from [RawBoost](https://github.com/TakHemlata/RawBoost-antispoofing) and [ConfidenceIntervals](https://github.com/luferrer/ConfidenceIntervals). Their original MIT license texts, copyright notices, and local file locations are recorded in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Spooftral also uses Mistral AI's Apache 2.0 licensed Voxtral base model, documented there.
+### Third-party software
+
+This repository includes adapted code from [RawBoost](https://github.com/TakHemlata/RawBoost-antispoofing) and [ConfidenceIntervals](https://github.com/luferrer/ConfidenceIntervals). Their original MIT license texts and the locations of the relevant code are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The same file also documents the Mistral AI Voxtral base-model license.
 
 ## Contact
 
