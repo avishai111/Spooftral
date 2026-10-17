@@ -554,16 +554,9 @@ See [`requirements.txt`](requirements.txt) (`pip install -r requirements.txt`). 
 | `soundfile`            | FLAC reading                                                                   |
 | `ffmpeg`               | codec augmentation; **system binary**, must be on `PATH` (not pip-installable) |
 
-## Notes
-
-- **Mixed precision:** bfloat16 AMP throughout. The LM loss is computed in float32 internally (via `for_causal_lm_loss`) for numerical stability, but the fp32 copy is freed immediately after the flat view is taken.
-- Gradient checkpointing is enabled by default (`use_reentrant=False`) to reduce activation memory during the combined 2B forward pass.
-- The Whisper audio encoder processes at 16 kHz. All audio is resampled before feature extraction.
-- `normalize_logprob_by_tokens` must be `True` (YAML default) to eliminate length bias in CE, margin, and teacher-forcing losses when label strings tokenise to different numbers of tokens.
-
 ## License
 
-The original Spooftral source code is licensed under the [Apache License 2.0](LICENSE). Incorporated third-party code retains its original copyright notices and license terms; see [Third-Party Notices](THIRD_PARTY_NOTICES.md) for details. The associated IEEE publication, including its text, figures, and tables, is subject to the applicable IEEE copyright terms and is not licensed under Apache 2.0.
+The original Spooftral source code is licensed under the [Apache License 2.0](LICENSE) to the best of our knowledge. Incorporated third-party code retains its original copyright notices and license terms; see [Third-Party Notices](THIRD_PARTY_NOTICES.md) for details. The associated IEEE publication, including its text, figures, and tables, is subject to the applicable IEEE copyright terms and is not licensed under Apache 2.0.
 
 ### Third-Party Software
 
