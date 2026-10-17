@@ -1,5 +1,7 @@
 # Spooftral: Can Voxtral Audio-Language Model Detect Speech Spoofing?
 
+[![arXiv](https://img.shields.io/badge/arXiv-2505.15911-b31b1b.svg)](https://doi.org/10.48550/arXiv.2609.28713)
+
 This project fine-tunes [Voxtral](https://huggingface.co/mistralai/Voxtral-Mini-3B-2507) (`mistralai/Voxtral-Mini-3B-2507`, built on the Ministral-3B language model) for automatic speaker verification (ASV) spoofing detection using a **Classification-as-Generation (CAG)** paradigm. the system scores the log-probability of each class label string (e.g. `"bonafide"` / `"spoof"`) conditioned on the audio input, then selects the label with the higher score. This lets the full generative LLM be the discriminator with no architectural changes and no extra parameters.
 
 Label texts are fully dynamic and YAML-driven — nothing is hardcoded. The golden prompt, class names, and all loss hyperparameters come from config.
@@ -569,7 +571,9 @@ This repository includes adapted code from [RawBoost](https://github.com/TakHeml
 
 ## Contact
 
-If you have questions, issues, or want to collaborate, feel free to reach out:
+We recently refactored the code to make it cleaner, and easier to understand.
+
+If you have questions, issues, or want to collaborate, please feel free to reach out:
 
 - 📧 Email: [Avishai Weizman](mailto:avishai11900@gmail.com)
 - 🔗 GitHub: [github.com/avishai111](https://github.com/avishai111)
